@@ -1,7 +1,7 @@
 #ifndef GIOCO_H
 #define GIOCO_H
 
-#include "IRQ_timer.c"
+
 #include "GLCD/GLCD.h" 
 #include <stdint.h>
 

@@ -9,7 +9,8 @@
 *********************************************************************************************************/
 #ifndef __TIMER_H
 #define __TIMER_H
-#include "stdint.h"
+#include <stdint.h>
+
 /* init_timer.c */
 //uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
 //extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );

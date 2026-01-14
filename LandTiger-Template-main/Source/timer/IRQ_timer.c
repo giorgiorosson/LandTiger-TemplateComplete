@@ -1,146 +1,79 @@
-/*********************************************************************************************************
-**--------------File Info---------------------------------------------------------------------------------
-** File name:           IRQ_timer.c
-** Last modified Date:  2014-09-25
-** Last Version:        V1.00
-** Descriptions:        functions to manage T0 and T1 interrupts
-** Correlated files:    timer.h
-**--------------------------------------------------------------------------------------------------------
-*********************************************************************************************************/
 #include "LPC17xx.h"
 #include "timer.h"
-#include "../led/led.h"
-#include "../utils.h"
 #include "../game.h"
+#include "../music/music.h"
+static int tick = 0;
+extern NOTE tetris_theme[]; 
+static int current_note = 0;
 
 /******************************************************************************
 ** Function name:		Timer0_IRQHandler
-**
-** Descriptions:		Timer/Counter 0 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
+** Descriptions:		Gestisce lo SPEAKER (Software Toggle su P0.26)
 ******************************************************************************/
-
 void TIMER0_IRQHandler (void)
 {
-	if(LPC_TIM0->IR & 1) 			 // MR0
-	{ 
-		// your code
-		// Esegui la logica di gioco
-        aggiorna_gioco();
-		LPC_TIM0->IR = 1;				 //clear interrupt flag
+	/* Variabile per abbassare il volume. 
+	   Il massimo è 1023 (3.3V). 
+	   Un valore intorno a 400-500 è un buon compromesso. */
+	int volume = 400; 
+
+	if(LPC_TIM0->IR & 1) 
+	{
+		// Alterna tra 0 e Volume
+		if (tick == 0) {
+			// Scrivi nel registro DAC: Valore << 6 (i bit 0-5 sono riservati)
+			LPC_DAC->DACR = (volume << 6);
+			tick = 1;
+		}
+		else {
+			LPC_DAC->DACR = (0 << 6);
+			tick = 0;
+		}
+		
+		LPC_TIM0->IR = 1; // Clear flag
 	}
-	else if(LPC_TIM0->IR & 2){ // MR1
-		// your code	
-		LPC_TIM0->IR = 2;				 // clear interrupt flag 
-	}
-	else if(LPC_TIM0->IR & 4){ // MR2
-		// your code	
-		LPC_TIM0->IR = 4;				 // clear interrupt flag 
-	}
-	else if(LPC_TIM0->IR & 8){ // MR3
-		// your code	
-		LPC_TIM0->IR = 8;				 // clear interrupt flag 
-	}
-	
-  return;
+	return;
 }
 
 /******************************************************************************
 ** Function name:		Timer1_IRQHandler
-**
-** Descriptions:		Timer/Counter 1 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
+** Descriptions:		Gestisce la DURATA delle note
 ******************************************************************************/
 void TIMER1_IRQHandler (void)
 {
-	if(LPC_TIM1->IR & 1) 	 	 // MR0
+	if(LPC_TIM1->IR & 1) 
 	{ 
-		// your code	
-		LPC_TIM1->IR = 1;				 //clear interrupt flag
-	}
-	else if(LPC_TIM1->IR & 2){ // MR1
-		// your code	
-		LPC_TIM1->IR = 2;				 // clear interrupt flag 
-	}
-	else if(LPC_TIM1->IR & 4){ // MR2
-		// your code	
-		LPC_TIM1->IR = 4;				 // clear interrupt flag 
-	}
-	else if(LPC_TIM1->IR & 8){ // MR3
-		// your code	
-		LPC_TIM1->IR = 8;				 // clear interrupt flag 
-	} 
+		// Passa alla nota successiva
+		current_note++;
+		
+		// Controllo fine canzone
+		if(tetris_theme[current_note].freq == pause && tetris_theme[current_note].duration == 0) {
+			current_note = 0; // Loop
+		}
 
+		playNote(tetris_theme[current_note]);
+		
+		LPC_TIM1->IR = 1; 
+	}
 	return;
 }
 
 /******************************************************************************
 ** Function name:		Timer2_IRQHandler
-**
-** Descriptions:		Timer/Counter 2 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
+** Descriptions:		Gestisce il GIOCO (Tetris)
 ******************************************************************************/
 void TIMER2_IRQHandler (void)
 {
-	if(LPC_TIM2->IR & 1) 	 	 // MR0
+	if(LPC_TIM2->IR & 1) 
 	{ 
-		// your code	
-		LPC_TIM2->IR = 1;				 //clear interrupt flag
+		aggiorna_gioco();
+		LPC_TIM2->IR = 1;				 
 	}
-	else if(LPC_TIM2->IR & 2){ // MR1
-		// your code	
-		LPC_TIM2->IR = 2;				 // clear interrupt flag 
-	}	
-	else if(LPC_TIM2->IR & 4){ // MR2
-		// your code	
-		LPC_TIM2->IR = 4;				 // clear interrupt flag 
-	}
-	else if(LPC_TIM2->IR & 8){ // MR3
-		// your code	
-		LPC_TIM2->IR = 8;				 // clear interrupt flag 
-	} 
-	
-  return;
+	return;
 }
 
-
-/******************************************************************************
-** Function name:		Timer3_IRQHandler
-**
-** Descriptions:		Timer/Counter 3 interrupt handler
-**
-** parameters:			None
-** Returned value:		None
-**
-******************************************************************************/
 void TIMER3_IRQHandler (void)
 {
-	if(LPC_TIM3->IR & 1) 		 
-	{ 
-		// your code	
-		LPC_TIM3->IR = 1;				 
-	}
-	else if(LPC_TIM3->IR & 2){ 
-		// your code	
-		LPC_TIM3->IR = 2;				 
-	}
-	else if(LPC_TIM3->IR & 4){ 
-		// your code	
-		LPC_TIM3->IR = 4;				 
-	}
-	else if(LPC_TIM3->IR & 8){ 
-		// your code	
-		LPC_TIM3->IR = 8;				  
-	} 
-	
-  return;
+	if(LPC_TIM3->IR & 1) LPC_TIM3->IR = 1;
+	return;
 }

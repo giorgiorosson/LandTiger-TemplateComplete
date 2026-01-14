@@ -1806,7 +1806,7 @@ void LED_OffAll(void);
 void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
 # 6 "Source/button_EXINT/IRQ_button.c" 2
 # 1 "Source/button_EXINT\\../timer/timer.h" 1
-# 14 "Source/button_EXINT\\../timer/timer.h"
+# 15 "Source/button_EXINT\\../timer/timer.h"
 //uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
 //extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );
 extern uint32_t init_timer( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval );

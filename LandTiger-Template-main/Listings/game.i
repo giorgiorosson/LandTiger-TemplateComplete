@@ -9,8 +9,9 @@
 
 
 
-# 1 "./Source/timer\\IRQ_timer.c" 1
-# 10 "./Source/timer\\IRQ_timer.c"
+
+# 1 "Source\\GLCD/GLCD.h" 1
+# 26 "Source\\GLCD/GLCD.h"
 # 1 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h" 1
 # 41 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h"
 typedef enum IRQn
@@ -1787,47 +1788,271 @@ typedef struct
        uint32_t RESERVED8;
   volatile uint32_t Module_ID;
 } LPC_EMAC_TypeDef;
-# 11 "./Source/timer\\IRQ_timer.c" 2
-# 1 "./Source/timer\\timer.h" 1
-# 14 "./Source/timer\\timer.h"
-//uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
-//extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );
-extern uint32_t init_timer( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval );
-extern void enable_timer( uint8_t timer_num );
-extern void disable_timer( uint8_t timer_num );
-extern void reset_timer( uint8_t timer_num );
-void toggle_timer( uint8_t timer_num );
-unsigned int get_timer_value(uint8_t timer_num);
-uint32_t is_timer_enabled ( uint8_t timer_num);
-void power_on_timer2();
-void power_on_timer3();
-float get_timer_value_in_sec(uint8_t timer_num);
+# 27 "Source\\GLCD/GLCD.h" 2
+# 90 "Source\\GLCD/GLCD.h"
+void LCD_Initialization(void);
+void LCD_Clear(uint16_t Color);
+uint16_t LCD_GetPoint(uint16_t Xpos,uint16_t Ypos);
+void LCD_SetPoint(uint16_t Xpos,uint16_t Ypos,uint16_t point);
+void LCD_DrawLine( uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1 , uint16_t color );
+void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor, uint16_t bkColor );
+void GUI_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor);
+# 6 "Source\\game.h" 2
 
 
-extern void TIMER0_IRQHandler (void);
-extern void TIMER1_IRQHandler (void);
-extern void TIMER2_IRQHandler (void);
-extern void TIMER3_IRQHandler (void);
-# 12 "./Source/timer\\IRQ_timer.c" 2
-# 1 "./Source/timer\\../led/led.h" 1
-# 12 "./Source/timer\\../led/led.h"
-void LED_init(void);
-void LED_deinit(void);
+//Dimensioni e Costanti di Gioco
 
 
-void LED_On (unsigned int num);
-void LED_Off (unsigned int num);
-void LED_Out(unsigned int value);
-void LED_Out_reverse(unsigned int value);
-void LED_OnAll(void);
-void LED_OffAll(void);
-void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
-# 13 "./Source/timer\\IRQ_timer.c" 2
-# 1 "./Source/timer\\../utils.h" 1
-# 1 "./Source/timer\\..\\sample.h" 1
-# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 1 3
-# 53 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
+
+
+
+
+
+// offset per la griglia
+// Margine sinistro di 5 pixel, Margine alto di 10 pixel
+
+
+
+// Stati del Gioco
+typedef enum {
+    GIOCO_FINITO,
+    GIOCO_IN_CORSO,
+    GIOCO_IN_PAUSA
+} StatoGioco;
+
+// Tipi di Tetramini
+typedef enum {
+    BLOCCO_I, BLOCCO_J, BLOCCO_L, BLOCCO_O, BLOCCO_S, BLOCCO_T, BLOCCO_Z
+} TipoBlocco;
+
+// Colori Tetris RGB565
+// Formato: 5 bit Rosso, 6 bit Verde, 5 bit Blu
+// I nomi iniziano con T_ per distinguerli da quelli di sistema
+# 45 "Source\\game.h"
+// Colori di utilità
+
+
+
+
+
+// --- Strutture Dati ---
+
+// Un punto nella griglia
+typedef struct {
+    int riga;
+    int colonna;
+} Punto;
+
+// Definizione di un Tetramino
+typedef struct {
+    Punto celle[4]; // Ogni blocco è formato da 4 celle
+    Punto posizione; // Posizione (riga, colonna) del pivot del blocco nella griglia
+    uint16_t colore; // Colore del blocco (usiamo i colori definiti in GLCD.h)
+    TipoBlocco tipo; // Tipo di blocco
+    int rotazione; // Stato di rotazione (0, 1, 2, 3)
+} Tetramino;
+
+// Variabili Globali Esterne (accessibili da main e interrupt)
+extern uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne]; // Matrice che rappresenta la griglia (contiene i colori)
+extern Tetramino tetraminoCorrente; // Il blocco che sta cadendo
+extern Tetramino tetraminoSuccessivo; // Il prossimo blocco (per la preview)
+extern volatile StatoGioco stato_gioco; // Stato corrente del gioco
+extern int punteggio; // Punteggio corrente
+
+// Prototipi di Funzione
+void inizializza_gioco(void); // Inizializza variabili e schermo
+void aggiorna_gioco(void); // Logica principale (chiamata dal timer)
+void genera_blocco(void); // Genera un nuovo blocco
+void disegna_griglia_statica(void); // Disegna i contorni statici
+extern volatile int mod_caduta_rapida;
+extern void alla_pressione_tasto1(void);
+# 2 "Source/game.c" 2
+
+# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 1 3
+# 71 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
     typedef unsigned int size_t;
+# 91 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+    typedef unsigned short wchar_t;
+
+
+
+
+typedef struct div_t { int quot, rem; } div_t;
+
+typedef struct ldiv_t { long int quot, rem; } ldiv_t;
+# 139 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int __aeabi_MB_CUR_MAX(void);
+# 158 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) double atof(const char * ) __attribute__((__nonnull__(1)));
+
+
+
+
+
+extern __attribute__((__nothrow__)) int atoi(const char * ) __attribute__((__nonnull__(1)));
+
+
+
+
+
+extern __attribute__((__nothrow__)) long int atol(const char * ) __attribute__((__nonnull__(1)));
+# 185 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) double strtod(const char * __restrict , char ** __restrict ) __attribute__((__nonnull__(1)));
+# 212 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) long int strtol(const char * __restrict ,
+                        char ** __restrict , int ) __attribute__((__nonnull__(1)));
+# 243 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) unsigned long int strtoul(const char * __restrict ,
+                                       char ** __restrict , int ) __attribute__((__nonnull__(1)));
+# 275 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) long long strtoll(const char * __restrict ,
+                                  char ** __restrict , int )
+                          __attribute__((__nonnull__(1)));
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) unsigned long long strtoull(const char * __restrict ,
+                                            char ** __restrict , int )
+                                   __attribute__((__nonnull__(1)));
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) int rand(void);
+# 303 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) void srand(unsigned int );
+# 313 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+struct _rand_state { int __x[57]; };
+extern __attribute__((__nothrow__)) int _rand_r(struct _rand_state *);
+extern __attribute__((__nothrow__)) void _srand_r(struct _rand_state *, unsigned int);
+struct _ANSI_rand_state { int __x[1]; };
+extern __attribute__((__nothrow__)) int _ANSI_rand_r(struct _ANSI_rand_state *);
+extern __attribute__((__nothrow__)) void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *calloc(size_t , size_t );
+
+
+
+
+
+extern __attribute__((__nothrow__)) void free(void * );
+
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *malloc(size_t );
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *realloc(void * , size_t );
+# 374 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+typedef int (*__heapprt)(void *, char const *, ...);
+extern __attribute__((__nothrow__)) void __heapstats(int (* )(void * ,
+                                           char const * , ...),
+                        void * ) __attribute__((__nonnull__(1)));
+# 390 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int __heapvalid(int (* )(void * ,
+                                           char const * , ...),
+                       void * , int ) __attribute__((__nonnull__(1)));
+# 411 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void abort(void);
+# 422 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int atexit(void (* )(void)) __attribute__((__nonnull__(1)));
+# 444 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void exit(int );
+# 460 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void _Exit(int );
+# 471 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) char *getenv(const char * ) __attribute__((__nonnull__(1)));
+# 484 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int system(const char * );
+# 497 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern void *bsearch(const void * , const void * ,
+              size_t , size_t ,
+              int (* )(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
+# 532 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern void qsort(void * , size_t , size_t ,
+           int (* )(const void *, const void *)) __attribute__((__nonnull__(1,4)));
+# 560 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) int abs(int );
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) __attribute__((__const__)) div_t div(int , int );
+# 579 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) long int labs(long int );
+# 589 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) ldiv_t ldiv(long int , long int );
+# 644 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+typedef struct __sdiv32by16 { long quot, rem; } __sdiv32by16;
+typedef struct __udiv32by16 { unsigned long quot, rem; } __udiv32by16;
+
+typedef struct __sdiv64by32 { long rem, quot; } __sdiv64by32;
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv32by16 __rt_sdiv32by16(
+     int ,
+     short int );
+
+
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __udiv32by16 __rt_udiv32by16(
+     unsigned int ,
+     unsigned short );
+
+
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv64by32 __rt_sdiv64by32(
+     int , unsigned int ,
+     int );
+
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) unsigned int __fp_status(unsigned int , unsigned int );
+# 705 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int mblen(const char * , size_t );
+# 720 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int mbtowc(wchar_t * __restrict ,
+                   const char * __restrict , size_t );
+# 739 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int wctomb(char * , wchar_t );
+# 761 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) size_t mbstowcs(wchar_t * __restrict ,
+                      const char * __restrict , size_t ) __attribute__((__nonnull__(2)));
+# 779 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) size_t wcstombs(char * __restrict ,
+                      const wchar_t * __restrict , size_t ) __attribute__((__nonnull__(2)));
+# 798 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) void __use_realtime_heap(void);
+extern __attribute__((__nothrow__)) void __use_realtime_division(void);
+extern __attribute__((__nothrow__)) void __use_two_region_memory(void);
+extern __attribute__((__nothrow__)) void __use_no_heap(void);
+extern __attribute__((__nothrow__)) void __use_no_heap_region(void);
+
+extern __attribute__((__nothrow__)) char const *__C_library_version_string(void);
+extern __attribute__((__nothrow__)) int __C_library_version_number(void);
+# 4 "Source/game.c" 2
+# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 1 3
 # 68 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
     typedef __builtin_va_list __va_list;
 # 87 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
@@ -2128,434 +2353,128 @@ extern __attribute__((__nothrow__)) int _fisatty(FILE * ) __attribute__((__nonnu
 
 extern __attribute__((__nothrow__)) void __use_no_semihosting_swi(void);
 extern __attribute__((__nothrow__)) void __use_no_semihosting(void);
-# 2 "./Source/timer\\..\\sample.h" 2
-# 1 "./Source/timer\\../led/led.h" 1
-# 12 "./Source/timer\\../led/led.h"
-void LED_init(void);
-void LED_deinit(void);
+# 5 "Source/game.c" 2
+# 1 "Source\\music/music.h" 1
 
 
-void LED_On (unsigned int num);
-void LED_Off (unsigned int num);
-void LED_Out(unsigned int value);
-void LED_Out_reverse(unsigned int value);
-void LED_OnAll(void);
-void LED_OffAll(void);
-void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
-# 3 "./Source/timer\\..\\sample.h" 2
-# 1 "./Source/timer\\..\\RIT/RIT.h" 1
-# 17 "./Source/timer\\..\\RIT/RIT.h"
-extern uint32_t init_RIT( uint32_t RITInterval );
-extern void enable_RIT( void );
-extern void disable_RIT( void );
-extern void reset_RIT( void );
-unsigned int get_RIT_value();
 
-extern void RIT_IRQHandler (void);
-# 4 "./Source/timer\\..\\sample.h" 2
-# 2 "./Source/timer\\../utils.h" 2
-# 1 "./Source/timer\\..\\functions.h" 1
-// Function to extract bits between indices `start` and `end` (inclusive)
-// Parameters:
-// value - The 32-bit value from which the bits will be extracted
-// start - The starting index of the bit range to extract (0 to 31)
-// end - The ending index of the bit range to extract (0 to 31)
-// Returns:
-// The extracted bits as an unsigned short (16 bits)
-unsigned short extract_bits(unsigned int value, int start, int end);
 
-// Function to represent a 32-bit value on the LEDs, 8 bits at a time
-// Parameters:
-// res - The 32-bit value to be displayed on the LEDs
-// position - The position of the byte to display (0 to 3)
-// - 0: least significant byte (LSB), 1: next byte, etc.
-// No return value; output is sent directly to LEDs
-void represent_on_leds(unsigned int res, int position);
-# 2 "./Source/timer\\../utils.h" 2
-# 14 "./Source/timer\\IRQ_timer.c" 2
-# 1 "Source\\game.h" 1
-# 15 "./Source/timer\\IRQ_timer.c" 2
-# 26 "./Source/timer\\IRQ_timer.c"
-void TIMER0_IRQHandler (void)
+//Default: 1.65
+
+
+
+
+
+
+
+typedef char BOOL;
+
+
+
+typedef enum note_durations
 {
- if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 1) // MR0
- {
-  // your code
-  // Esegui la logica di gioco
-        aggiorna_gioco();
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; //clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 2){ // MR1
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 2; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 4){ // MR2
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 4; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 8){ // MR3
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 8; // clear interrupt flag
- }
+ time_semibiscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 64.0f + 0.5), // 1/128
+ time_biscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 32.0f + 0.5), // 1/64
+ time_semicroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 16.0f + 0.5), // 1/32
+ time_croma = (unsigned int)(0x17D7840 * 1 * 1.6 / 8.0f + 0.5), // 1/16
+ time_semiminima = (unsigned int)(0x17D7840 * 1 * 1.6 / 4.0f + 0.5), // 1/4
+ time_minima = (unsigned int)(0x17D7840 * 1 * 1.6 / 2.0f + 0.5), // 1/2
+ time_semibreve = (unsigned int)(0x17D7840 * 1 * 1.6 + 0.5), // 1
+} NOTE_DURATION;
 
-  return;
-}
-# 60 "./Source/timer\\IRQ_timer.c"
-void TIMER1_IRQHandler (void)
+typedef enum frequencies
 {
- if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 1) // MR0
- {
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 1; //clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 2){ // MR1
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 2; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 4){ // MR2
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 4; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 8){ // MR3
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 8; // clear interrupt flag
- }
+ a2b = 5351, // 103Hz k=5351 a2b
+ b2 = 4500, // 123Hz k=4500 b2
+ c3b = 4370, // 127Hz k)4370 c3b
+ c3 = 4240, // 131Hz k=4240 c3
+ d3 = 3779, // 147Hz k=3779 d3
+ e3 = 3367, // 165Hz k=3367 e3
+ f3 = 3175, // 175Hz k=3175 f3
+ g3 = 2834, // 196Hz k=2834 g3
+ a3b = 2670, // 208Hz k=2670 a4b
+ a3 = 2525, // 220Hz k=2525 a3
+ b3 = 2249, // 247Hz k=2249 b3
+ c4 = 2120, // 262Hz k=2120 c4
+ d4 = 1890, // 294Hz k=1890 d4
+ e4 = 1684, // 330Hz k=1684 e4
+ f4 = 1592, // 349Hz k=1592 f4
+ g4 = 1417, // 392Hz k=1417 g4
+ a4 = 1263, // 440Hz k=1263 a4
+ b4 = 1125, // 494Hz k=1125 b4
+ c5 = 1062, // 523Hz k=1062 c5
+ pause = 0 // DO NOT SOUND
+} FREQUENCY;
 
- return;
-}
-# 92 "./Source/timer\\IRQ_timer.c"
-void TIMER2_IRQHandler (void)
+
+typedef struct
 {
- if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 1) // MR0
- {
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 1; //clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 2){ // MR1
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 2; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 4){ // MR2
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 4; // clear interrupt flag
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 8){ // MR3
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 8; // clear interrupt flag
- }
-
-  return;
-}
-# 125 "./Source/timer\\IRQ_timer.c"
-void TIMER3_IRQHandler (void)
-{
- if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 1)
- {
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 1;
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 2){
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 2;
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 4){
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 4;
- }
- else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 8){
-  // your code
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 8;
- }
-
-  return;
-}
-# 5 "Source\\game.h" 2
-# 1 "Source\\GLCD/GLCD.h" 1
-# 90 "Source\\GLCD/GLCD.h"
-void LCD_Initialization(void);
-void LCD_Clear(uint16_t Color);
-uint16_t LCD_GetPoint(uint16_t Xpos,uint16_t Ypos);
-void LCD_SetPoint(uint16_t Xpos,uint16_t Ypos,uint16_t point);
-void LCD_DrawLine( uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1 , uint16_t color );
-void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor, uint16_t bkColor );
-void GUI_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor);
-# 6 "Source\\game.h" 2
-
-
-//Dimensioni e Costanti di Gioco
-
-
-
-
-
-
-
-// offset per la griglia
-// Margine sinistro di 5 pixel, Margine alto di 10 pixel
-
-
-
-// Stati del Gioco
-typedef enum {
-    GIOCO_FINITO,
-    GIOCO_IN_CORSO,
-    GIOCO_IN_PAUSA
-} StatoGioco;
-
-// Tipi di Tetramini
-typedef enum {
-    BLOCCO_I, BLOCCO_J, BLOCCO_L, BLOCCO_O, BLOCCO_S, BLOCCO_T, BLOCCO_Z
-} TipoBlocco;
-
-// Colori Tetris RGB565
-// Formato: 5 bit Rosso, 6 bit Verde, 5 bit Blu
-// I nomi iniziano con T_ per distinguerli da quelli di sistema
-# 45 "Source\\game.h"
-// Colori di utilità
-
-
-
-
-
-// --- Strutture Dati ---
-
-// Un punto nella griglia
-typedef struct {
-    int riga;
-    int colonna;
-} Punto;
-
-// Definizione di un Tetramino
-typedef struct {
-    Punto celle[4]; // Ogni blocco è formato da 4 celle
-    Punto posizione; // Posizione (riga, colonna) del pivot del blocco nella griglia
-    uint16_t colore; // Colore del blocco (usiamo i colori definiti in GLCD.h)
-    TipoBlocco tipo; // Tipo di blocco
-    int rotazione; // Stato di rotazione (0, 1, 2, 3)
-} Tetramino;
-
-// Variabili Globali Esterne (accessibili da main e interrupt)
-extern uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne]; // Matrice che rappresenta la griglia (contiene i colori)
-extern Tetramino tetraminoCorrente; // Il blocco che sta cadendo
-extern Tetramino tetraminoSuccessivo; // Il prossimo blocco (per la preview)
-extern volatile StatoGioco stato_gioco; // Stato corrente del gioco
-extern int punteggio; // Punteggio corrente
-
-// Prototipi di Funzione
-void inizializza_gioco(void); // Inizializza variabili e schermo
-void aggiorna_gioco(void); // Logica principale (chiamata dal timer)
-void genera_blocco(void); // Genera un nuovo blocco
-void disegna_griglia_statica(void); // Disegna i contorni statici
-extern volatile int mod_caduta_rapida;
-extern void alla_pressione_tasto1(void);
-# 2 "Source/game.c" 2
-
-# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 1 3
-# 91 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-    typedef unsigned short wchar_t;
-
-
-
-
-typedef struct div_t { int quot, rem; } div_t;
-
-typedef struct ldiv_t { long int quot, rem; } ldiv_t;
-# 139 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int __aeabi_MB_CUR_MAX(void);
-# 158 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) double atof(const char * ) __attribute__((__nonnull__(1)));
-
-
-
-
-
-extern __attribute__((__nothrow__)) int atoi(const char * ) __attribute__((__nonnull__(1)));
-
-
-
-
-
-extern __attribute__((__nothrow__)) long int atol(const char * ) __attribute__((__nonnull__(1)));
-# 185 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) double strtod(const char * __restrict , char ** __restrict ) __attribute__((__nonnull__(1)));
-# 212 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) long int strtol(const char * __restrict ,
-                        char ** __restrict , int ) __attribute__((__nonnull__(1)));
-# 243 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) unsigned long int strtoul(const char * __restrict ,
-                                       char ** __restrict , int ) __attribute__((__nonnull__(1)));
-# 275 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) long long strtoll(const char * __restrict ,
-                                  char ** __restrict , int )
-                          __attribute__((__nonnull__(1)));
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) unsigned long long strtoull(const char * __restrict ,
-                                            char ** __restrict , int )
-                                   __attribute__((__nonnull__(1)));
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) int rand(void);
-# 303 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) void srand(unsigned int );
-# 313 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-struct _rand_state { int __x[57]; };
-extern __attribute__((__nothrow__)) int _rand_r(struct _rand_state *);
-extern __attribute__((__nothrow__)) void _srand_r(struct _rand_state *, unsigned int);
-struct _ANSI_rand_state { int __x[1]; };
-extern __attribute__((__nothrow__)) int _ANSI_rand_r(struct _ANSI_rand_state *);
-extern __attribute__((__nothrow__)) void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *calloc(size_t , size_t );
-
-
-
-
-
-extern __attribute__((__nothrow__)) void free(void * );
-
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *malloc(size_t );
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *realloc(void * , size_t );
-# 374 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-typedef int (*__heapprt)(void *, char const *, ...);
-extern __attribute__((__nothrow__)) void __heapstats(int (* )(void * ,
-                                           char const * , ...),
-                        void * ) __attribute__((__nonnull__(1)));
-# 390 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int __heapvalid(int (* )(void * ,
-                                           char const * , ...),
-                       void * , int ) __attribute__((__nonnull__(1)));
-# 411 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void abort(void);
-# 422 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int atexit(void (* )(void)) __attribute__((__nonnull__(1)));
-# 444 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void exit(int );
-# 460 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void _Exit(int );
-# 471 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) char *getenv(const char * ) __attribute__((__nonnull__(1)));
-# 484 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int system(const char * );
-# 497 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern void *bsearch(const void * , const void * ,
-              size_t , size_t ,
-              int (* )(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
-# 532 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern void qsort(void * , size_t , size_t ,
-           int (* )(const void *, const void *)) __attribute__((__nonnull__(1,4)));
-# 560 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) int abs(int );
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) __attribute__((__const__)) div_t div(int , int );
-# 579 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) long int labs(long int );
-# 589 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) ldiv_t ldiv(long int , long int );
-# 644 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-typedef struct __sdiv32by16 { long quot, rem; } __sdiv32by16;
-typedef struct __udiv32by16 { unsigned long quot, rem; } __udiv32by16;
-
-typedef struct __sdiv64by32 { long rem, quot; } __sdiv64by32;
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv32by16 __rt_sdiv32by16(
-     int ,
-     short int );
-
-
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __udiv32by16 __rt_udiv32by16(
-     unsigned int ,
-     unsigned short );
-
-
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv64by32 __rt_sdiv64by32(
-     int , unsigned int ,
-     int );
-
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) unsigned int __fp_status(unsigned int , unsigned int );
-# 705 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int mblen(const char * , size_t );
-# 720 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int mbtowc(wchar_t * __restrict ,
-                   const char * __restrict , size_t );
-# 739 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int wctomb(char * , wchar_t );
-# 761 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) size_t mbstowcs(wchar_t * __restrict ,
-                      const char * __restrict , size_t ) __attribute__((__nonnull__(2)));
-# 779 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) size_t wcstombs(char * __restrict ,
-                      const wchar_t * __restrict , size_t ) __attribute__((__nonnull__(2)));
-# 798 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) void __use_realtime_heap(void);
-extern __attribute__((__nothrow__)) void __use_realtime_division(void);
-extern __attribute__((__nothrow__)) void __use_two_region_memory(void);
-extern __attribute__((__nothrow__)) void __use_no_heap(void);
-extern __attribute__((__nothrow__)) void __use_no_heap_region(void);
-
-extern __attribute__((__nothrow__)) char const *__C_library_version_string(void);
-extern __attribute__((__nothrow__)) int __C_library_version_number(void);
-# 4 "Source/game.c" 2
-
+ FREQUENCY freq;
+ NOTE_DURATION duration;
+} NOTE;
+
+void playNote(NOTE note);
+BOOL isNotePlaying(void);
+# 6 "Source/game.c" 2
+# 1 "Source\\timer/timer.h" 1
+# 15 "Source\\timer/timer.h"
+//uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
+//extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );
+extern uint32_t init_timer( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval );
+extern void enable_timer( uint8_t timer_num );
+extern void disable_timer( uint8_t timer_num );
+extern void reset_timer( uint8_t timer_num );
+void toggle_timer( uint8_t timer_num );
+unsigned int get_timer_value(uint8_t timer_num);
+uint32_t is_timer_enabled ( uint8_t timer_num);
+void power_on_timer2();
+void power_on_timer3();
+float get_timer_value_in_sec(uint8_t timer_num);
+
+
+extern void TIMER0_IRQHandler (void);
+extern void TIMER1_IRQHandler (void);
+extern void TIMER2_IRQHandler (void);
+extern void TIMER3_IRQHandler (void);
+# 7 "Source/game.c" 2
 
 // Variabili Globali
 uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne];
 Tetramino tetraminoCorrente;
 Tetramino tetraminoSuccessivo;
-
-// metto PAUSED così il gioco non parte da solo
 volatile StatoGioco stato_gioco = GIOCO_IN_PAUSA;
 
 int punteggio = 0;
 int linee_completate_totali = 0;
 volatile int record_punteggio = 0;
-
 volatile int mod_caduta_rapida = 0;
 volatile int richiesta_riavvio = 0;
 
-
-// Variabili Esterne dal RIT (Joystick)
+// Variabili Esterne
 extern volatile int J_left;
 extern volatile int J_right;
 extern volatile int J_up;
 extern volatile int J_down;
-// posizione dei blocchi come distanze dal point
+
+// SPARTITO MUSICALE TETRIS
+NOTE tetris_theme[] = {
+    // Parte 1
+    {e4, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
+    {c4, time_croma}, {b3, time_croma}, {a3, time_semiminima}, {a3, time_croma},
+    {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
+    {e4, time_semiminima}, {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+    {pause, time_croma}, // Pausa breve
+
+    // Parte 2
+    {d4, time_semiminima}, {f4, time_croma}, {a4, time_semiminima}, {g4, time_croma}, {f4, time_croma},
+    {e4, time_semiminima}, {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, {e4, time_semiminima},
+    {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+
+    {pause, 0} // Indica la fine della canzone (loop)
+};
+
 // Forme dei blocchi
 const Punto FORME_TETRAMINI[7][4] = {
     {{0, -1}, {0, 0}, {0, 1}, {0, 2}}, // I
@@ -2571,13 +2490,12 @@ const uint16_t COLORI_TETRAMINI[7] = {
     0x07FF // Ciano (I piece) - R=0, G=63, B=31 (Nota: 0x7FFF è ciano chiaro, 0x07FF è puro ciano standard), 0x001F // Blu (J piece) - R=0, G=0, B=31, 0xFD20 // Arancione (L piece) - R=31, G=40, B=0, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x07E0 // Verde (S piece) - R=0, G=63, B=0, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0xF800 // Rosso (Z piece) - R=31, G=0, B=0
 };
 
-// Funzioni di Disegno
+// --- Funzioni di Disegno (Invariate) ---
 
 void disegna_cella_griglia(int riga, int colonna, uint16_t colore) {
     int x0 = 5 + (colonna * 15 // Dimensione in pixel di ogni blocco);
     int y0 = 10 + (riga * 15 // Dimensione in pixel di ogni blocco);
     int i, j;
-
     for (i = 0; i < 15 // Dimensione in pixel di ogni blocco; i++) {
         for (j = 0; j < 15 // Dimensione in pixel di ogni blocco; j++) {
             if (i == 15 // Dimensione in pixel di ogni blocco - 1 || j == 15 // Dimensione in pixel di ogni blocco - 1)
@@ -2593,7 +2511,6 @@ void disegna_tetramino(Tetramino blocco, uint16_t colore) {
     for(i = 0; i < 4; i++) {
         int r = blocco.posizione.riga + blocco.celle[i].riga;
         int c = blocco.posizione.colonna + blocco.celle[i].colonna;
-
         if(r >= 0 && r < 20 // Righe della griglia di gioco && c >= 0 && c < 10 // Colonne) {
             disegna_cella_griglia(r, c, colore);
         }
@@ -2608,7 +2525,6 @@ void disegna_griglia_statica(void) {
     int width_px = 10 // Colonne * 15 // Dimensione in pixel di ogni blocco + 2;
     int height_px = 20 // Righe della griglia di gioco * 15 // Dimensione in pixel di ogni blocco + 2;
 
-    // Cornice
     for(i = 0; i < width_px; i++) {
         LCD_SetPoint(x_start + i, y_start, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
         LCD_SetPoint(x_start + i, y_start + height_px, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
@@ -2618,44 +2534,34 @@ void disegna_griglia_statica(void) {
         LCD_SetPoint(x_start + width_px, y_start + i, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
     }
 
-    //INTERFACCIA LATERALE
-
-    // Score
     GUI_Text(160, 20, (uint8_t *) "SCORE", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
     sprintf(str, "%d", punteggio);
     GUI_Text(160, 40, (uint8_t *)str, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
 
-    // Lines
     GUI_Text(160, 70, (uint8_t *) "LINES", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
     sprintf(str, "%d", linee_completate_totali);
     GUI_Text(160, 90, (uint8_t *)str, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
 
-    // High Score
     GUI_Text(160, 120, (uint8_t *) "HI-SCORE", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
     sprintf(str, "%d", record_punteggio);
     GUI_Text(160, 140, (uint8_t *)str, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
 
-    // Next
     GUI_Text(160, 170, (uint8_t *) "NEXT", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
 
-    // Status Text (Se siamo in pausa all'inizio) -> SPOSTATO A 265
     if (stato_gioco == GIOCO_IN_PAUSA) {
         GUI_Text(160, 265, (uint8_t *) "PAUSED", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
     }
 }
 
-// --- Funzione Anteprima ---
 void disegna_blocco_anteprima(Tetramino blk, uint16_t colore) {
     int start_x = 160;
-    int start_y = 190; // Il blocco viene disegnato da qui in giù (finisce circa a 250)
+    int start_y = 190;
     int i, a, b;
-
     for(i = 0; i < 4; i++) {
         int r = blk.celle[i].riga + 1;
         int c = blk.celle[i].colonna + 1;
         int px = start_x + (c * 15 // Dimensione in pixel di ogni blocco);
         int py = start_y + (r * 15 // Dimensione in pixel di ogni blocco);
-
         for (a = 0; a < 15 // Dimensione in pixel di ogni blocco; a++) {
             for (b = 0; b < 15 // Dimensione in pixel di ogni blocco; b++) {
                 if (a == 15 // Dimensione in pixel di ogni blocco - 1 || b == 15 // Dimensione in pixel di ogni blocco - 1)
@@ -2667,7 +2573,7 @@ void disegna_blocco_anteprima(Tetramino blk, uint16_t colore) {
     }
 }
 
-// Logica di Gioco
+// --- Logica di Gioco ---
 
 int controlla_collisione(Tetramino b) {
     int i;
@@ -2710,22 +2616,16 @@ void controlla_linee(void) {
     }
 
     if(linee_cancellate > 0) {
-        // Aggiorna Linee Totali
         linee_completate_totali += linee_cancellate;
         sprintf(str, "%d", linee_completate_totali);
         GUI_Text(160, 90, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
 
-        // Aggiorna Punti
-        if (linee_cancellate == 4) {
-            punteggio += 600;
-        } else {
-            punteggio += (linee_cancellate * 100);
-        }
+        if (linee_cancellate == 4) punteggio += 600;
+        else punteggio += (linee_cancellate * 100);
 
         sprintf(str, "%d", punteggio);
         GUI_Text(160, 40, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
 
-        // Ridisegna griglia
         for(row=0; row<20 // Righe della griglia di gioco; row++) {
              for(col=0; col<10 // Colonne; col++) {
                  disegna_cella_griglia(row, col, griglia[row][col]);
@@ -2736,90 +2636,85 @@ void controlla_linee(void) {
 
 void genera_blocco(void) {
     int i;
-    // Primo avvio
     if (tetraminoCorrente.tipo == 0 && tetraminoSuccessivo.tipo == 0) {
         tetraminoSuccessivo.tipo = (TipoBlocco)(rand() % 7);
         tetraminoSuccessivo.colore = COLORI_TETRAMINI[tetraminoSuccessivo.tipo];
         tetraminoSuccessivo.rotazione = 0;
         for(i=0; i<4; i++) tetraminoSuccessivo.celle[i] = FORME_TETRAMINI[tetraminoSuccessivo.tipo][i];
     }
-
     tetraminoCorrente = tetraminoSuccessivo;
     tetraminoCorrente.posizione.riga = 1;
     tetraminoCorrente.posizione.colonna = 10 // Colonne / 2;
-
-    disegna_blocco_anteprima(tetraminoCorrente, 0x0000 // Sfondo); // Cancella
+    disegna_blocco_anteprima(tetraminoCorrente, 0x0000 // Sfondo);
 
     tetraminoSuccessivo.tipo = (TipoBlocco)(rand() % 7);
     tetraminoSuccessivo.colore = COLORI_TETRAMINI[tetraminoSuccessivo.tipo];
     tetraminoSuccessivo.rotazione = 0;
     for(i=0; i<4; i++) tetraminoSuccessivo.celle[i] = FORME_TETRAMINI[tetraminoSuccessivo.tipo][i];
-
-    disegna_blocco_anteprima(tetraminoSuccessivo, tetraminoSuccessivo.colore); // Disegna
+    disegna_blocco_anteprima(tetraminoSuccessivo, tetraminoSuccessivo.colore);
 }
 
-// funzione viene chiamata da KEY 1 (IRQ_RIT)
 void alla_pressione_tasto1(void) {
-    // --- GENERAZIONE CASUALE (SEED) ---
-    // Usiamo il valore attuale del Timer0 (TC) come seme.
-
-    srand(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->TC);
-
-    // 1. Se GAME OVER Ricomincia partita
+    srand(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->TC); // Seed random usando il timer
     if (stato_gioco == GIOCO_FINITO) {
-        // NON richiamare game_init() qui dentro (siamo in RIT IRQ)
-        richiesta_riavvio = 1; // segnalo alla logica di gioco che deve riavviare
+        richiesta_riavvio = 1;
         return;
     }
-
-    // 2. Se PAUSA Riprendi
     if (stato_gioco == GIOCO_IN_PAUSA) {
         stato_gioco = GIOCO_IN_CORSO;
-
-        // Cancella la scritta "PAUSED" scrivendoci sopra spazi neri
         GUI_Text(160, 265, (uint8_t *) "      ", 0x0000 // Sfondo, 0x0000 // Sfondo);
-
-
-
     }
-    // 3. Se RUNNING metti in Pausa
     else if (stato_gioco == GIOCO_IN_CORSO) {
         stato_gioco = GIOCO_IN_PAUSA;
         GUI_Text(160, 265, (uint8_t *) "PAUSED", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
     }
 }
+
+// --- FUNZIONE DI INIZIALIZZAZIONE (MODIFICATA) ---
 void inizializza_gioco(void) {
     int i, j;
 
-    // PRIORITA' INTERRUPT
-    __NVIC_SetPriority(RIT_IRQn, 1);
-    __NVIC_SetPriority(TIMER0_IRQn, 2);
+    // --- 1. CONFIGURAZIONE PRIORITÀ INTERRUPT ---
+    __NVIC_SetPriority(TIMER0_IRQn, 0); // Audio
+    __NVIC_SetPriority(TIMER1_IRQn, 1); // Durata Note
+    __NVIC_SetPriority(RIT_IRQn, 2); // Joystick
+    __NVIC_SetPriority(TIMER2_IRQn, 3); // Gioco
 
+    // --- 2. PULIZIA SCHERMO E VARIABILI ---
     for(i = 0; i < 20 // Righe della griglia di gioco; i++) {
         for(j = 0; j < 10 // Colonne; j++) {
             griglia[i][j] = 0x0000 // Sfondo;
         }
     }
-
     punteggio = 0;
     linee_completate_totali = 0;
-
-    // Inizia in pausa
     stato_gioco = GIOCO_IN_PAUSA;
-
-    // Resetta i blocchi
     tetraminoCorrente.tipo = 0;
     tetraminoSuccessivo.tipo = 0;
 
     LCD_Clear(0x0000 // Sfondo);
     disegna_griglia_statica();
     genera_blocco();
-}
 
+    // --- 3. ATTIVAZIONE GIOCO SU TIMER 2 ---
+
+    // >>> MODIFICA FONDAMENTALE QUI SOTTO <<<
+
+    // Accendi elettricamente il Timer 2 (altrimenti è morto!)
+    // Se la funzione power_on_timer2() non viene riconosciuta, usa la riga commentata sotto:
+    power_on_timer2();
+    // ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22); // Alternativa diretta se power_on_timer2 non va
+
+    // Ora puoi inizializzarlo (circa 60Hz -> 0x65B9A)
+    init_timer(2, 0, 0, 3, 0x65B9A);
+    enable_timer(2);
+
+    // --- 4. START MUSICA ---
+    playNote(tetris_theme[0]);
+}
 void blocca_blocco(void) {
     int i;
     char str[15];
-
     for(i = 0; i < 4; i++) {
         int r = tetraminoCorrente.posizione.riga + tetraminoCorrente.celle[i].riga;
         int c = tetraminoCorrente.posizione.colonna + tetraminoCorrente.celle[i].colonna;
@@ -2827,30 +2722,23 @@ void blocca_blocco(void) {
             griglia[r][c] = tetraminoCorrente.colore;
         }
     }
-
-    // Punti per piazzamento
     punteggio += 10;
     sprintf(str, "%d", punteggio);
     GUI_Text(160, 40, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
-
     mod_caduta_rapida = 0;
     controlla_linee();
-
     genera_blocco();
     disegna_tetramino(tetraminoCorrente, tetraminoCorrente.colore);
 
     if (controlla_collisione(tetraminoCorrente)) {
         stato_gioco = GIOCO_FINITO;
         GUI_Text(50, 150, (uint8_t *)"GAME OVER", 0xF800 // Rosso (Z piece) - R=31, G=0, B=0, 0xFFFF // Testo/Bordi);
-
         if (punteggio > record_punteggio) {
             record_punteggio = punteggio;
             sprintf(str, "%d", record_punteggio);
             GUI_Text(160, 140, (uint8_t *)str, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
             GUI_Text(50, 170, (uint8_t *)"NEW RECORD!", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
         }
-
-        // Messaggio per ricominciare
         GUI_Text(30, 190, (uint8_t *)"PRESS KEY1", 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
     }
 }
@@ -2874,20 +2762,15 @@ void ruota_blocco(void) {
 }
 
 static int ticks = 0;
-//qui setto il restart
+
 void aggiorna_gioco(void) {
     Tetramino temp;
 
-
     if (richiesta_riavvio) {
         richiesta_riavvio = 0;
-
         inizializza_gioco();
-
         return;
     }
-
-    // Se non è RUNNING, non fare nulla (Pausa o Game Over)
     if (stato_gioco != GIOCO_IN_CORSO) return;
 
     if (mod_caduta_rapida == 1) {
@@ -2901,10 +2784,7 @@ void aggiorna_gioco(void) {
         return;
     }
 
-    if (J_up != 0) {
-        ruota_blocco();
-        J_up = 0;
-    }
+    if (J_up != 0) { ruota_blocco(); J_up = 0; }
     if (J_left != 0) {
         temp = tetraminoCorrente;
         temp.posizione.colonna--;
@@ -2927,6 +2807,7 @@ void aggiorna_gioco(void) {
     }
 
     ticks++;
+    // Qui si potrebbe usare il potenziometro per la velocità
     int threshold = 40;
     if (J_down != 0) threshold = 2;
 
