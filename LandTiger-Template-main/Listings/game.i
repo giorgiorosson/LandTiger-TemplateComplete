@@ -2347,7 +2347,92 @@ extern __attribute__((__nothrow__)) int _fisatty(FILE * ) __attribute__((__nonnu
 extern __attribute__((__nothrow__)) void __use_no_semihosting_swi(void);
 extern __attribute__((__nothrow__)) void __use_no_semihosting(void);
 # 5 "Source/game.c" 2
+# 1 "Source\\music/music.h" 1
 
+
+
+
+//Default: 1.65
+
+
+
+
+
+
+
+typedef char BOOL;
+
+
+
+typedef enum note_durations
+{
+ time_semibiscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 64.0f + 0.5), // 1/128
+ time_biscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 32.0f + 0.5), // 1/64
+ time_semicroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 16.0f + 0.5), // 1/32
+ time_croma = (unsigned int)(0x17D7840 * 1 * 1.6 / 8.0f + 0.5), // 1/16
+ time_semiminima = (unsigned int)(0x17D7840 * 1 * 1.6 / 4.0f + 0.5), // 1/4
+ time_minima = (unsigned int)(0x17D7840 * 1 * 1.6 / 2.0f + 0.5), // 1/2
+ time_semibreve = (unsigned int)(0x17D7840 * 1 * 1.6 + 0.5), // 1
+} NOTE_DURATION;
+
+typedef enum frequencies
+{
+ a2b = 5351, // 103Hz k=5351 a2b
+ b2 = 4500, // 123Hz k=4500 b2
+ c3b = 4370, // 127Hz k)4370 c3b
+ c3 = 4240, // 131Hz k=4240 c3
+ d3 = 3779, // 147Hz k=3779 d3
+ e3 = 3367, // 165Hz k=3367 e3
+ f3 = 3175, // 175Hz k=3175 f3
+ g3 = 2834, // 196Hz k=2834 g3
+ a3b = 2670, // 208Hz k=2670 a4b
+ a3 = 2525, // 220Hz k=2525 a3
+ b3 = 2249, // 247Hz k=2249 b3
+ c4 = 2120, // 262Hz k=2120 c4
+ d4 = 1890, // 294Hz k=1890 d4
+ e4 = 1684, // 330Hz k=1684 e4
+ f4 = 1592, // 349Hz k=1592 f4
+ g4 = 1417, // 392Hz k=1417 g4
+ a4 = 1263, // 440Hz k=1263 a4
+ b4 = 1125, // 494Hz k=1125 b4
+ c5 = 1062, // 523Hz k=1062 c5
+ pause = 0 // DO NOT SOUND
+} FREQUENCY;
+
+
+typedef struct
+{
+ FREQUENCY freq;
+ NOTE_DURATION duration;
+} NOTE;
+
+void playNote(NOTE note);
+BOOL isNotePlaying(void);
+# 6 "Source/game.c" 2
+
+// --- Inserire dopo gli include in game.c ---
+
+// Definizione note per la canzone (Korobeiniki - Tetris Theme)
+NOTE tetris_theme[] = {
+    // Prima parte
+    {e4, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
+    {c4, time_croma}, {b3, time_croma}, {a3, time_semiminima}, {a3, time_croma},
+    {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
+    {e4, time_semiminima}, {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+
+    // Pausa breve
+    {pause, time_croma},
+
+    // Seconda parte
+    {d4, time_semiminima}, {f4, time_croma}, {a4, time_semiminima}, {g4, time_croma}, {f4, time_croma},
+    {e4, time_semiminima}, {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, {e4, time_semiminima},
+    {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+
+    // TAPPO DI FINE (Importante per il loop)
+    {pause, 0}
+};
 // Variabili Globali
 uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne];
 Tetramino tetraminoCorrente;
@@ -2605,29 +2690,29 @@ void alla_pressione_tasto1(void) {
 void inizializza_gioco(void) {
     int i, j;
 
-    // PRIORITA' INTERRUPT
-    __NVIC_SetPriority(RIT_IRQn, 1);
-    __NVIC_SetPriority(TIMER0_IRQn, 2);
+    // --- PRIORITÀ INTERRUPT ---
+    // Timer 2 (Audio) deve avere priorità ALTA (0) per non gracchiare
+    // Timer 0 (Gioco) può avere priorità BASSA (3)
+    __NVIC_SetPriority(TIMER2_IRQn, 0);
+    __NVIC_SetPriority(TIMER1_IRQn, 1);
+    __NVIC_SetPriority(RIT_IRQn, 2);
+    __NVIC_SetPriority(TIMER0_IRQn, 3);
 
-    for(i = 0; i < 20 // Righe della griglia di gioco; i++) {
-        for(j = 0; j < 10 // Colonne; j++) {
-            griglia[i][j] = 0x0000 // Sfondo;
-        }
-    }
-
-    punteggio = 0;
-    linee_completate_totali = 0;
-
-    // Inizia in pausa
-    stato_gioco = GIOCO_IN_PAUSA;
-
-    // Resetta i blocchi
-    tetraminoCorrente.tipo = 0;
-    tetraminoSuccessivo.tipo = 0;
-
+    // ... codice pulizia schermo e variabili ...
     LCD_Clear(0x0000 // Sfondo);
     disegna_griglia_statica();
     genera_blocco();
+
+    // --- ACCENSIONE HARDWARE TIMER 2 (Per la Musica) ---
+    ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22); // Accende Timer 2 (Bit 22)
+
+    // --- START GIOCO (Timer 0) ---
+    // Timer 0 per il gioco (60Hz circa -> 0x65B9A)
+    init_timer(0, 0, 0, 3, 0x65B9A);
+    enable_timer(0);
+
+    // --- START MUSICA (Timer 2) ---
+    playNote(tetris_theme[0]);
 }
 
 void blocca_blocco(void) {

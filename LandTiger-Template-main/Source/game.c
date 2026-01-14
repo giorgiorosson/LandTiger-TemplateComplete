@@ -2,7 +2,31 @@
 #include "LPC17xx.h" 
 #include <stdlib.h>
 #include <stdio.h> 
+#include "music/music.h"
 
+// --- Inserire dopo gli include in game.c ---
+
+// Definizione note per la canzone (Korobeiniki - Tetris Theme)
+NOTE tetris_theme[] = {
+    // Prima parte
+    {e4, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, 
+    {c4, time_croma}, {b3, time_croma}, {a3, time_semiminima}, {a3, time_croma}, 
+    {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, 
+    {e4, time_semiminima}, {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+    
+    // Pausa breve
+    {pause, time_croma}, 
+    
+    // Seconda parte
+    {d4, time_semiminima}, {f4, time_croma}, {a4, time_semiminima}, {g4, time_croma}, {f4, time_croma},
+    {e4, time_semiminima}, {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
+    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, {e4, time_semiminima},
+    {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+    
+    // TAPPO DI FINE (Importante per il loop)
+    {pause, 0} 
+};
 // Variabili Globali 
 uint16_t griglia[RIGHE_CAMPO][COLONNE_CAMPO];
 Tetramino tetraminoCorrente;
@@ -260,29 +284,29 @@ void alla_pressione_tasto1(void) {
 void inizializza_gioco(void) {
     int i, j;
     
-    // PRIORITA' INTERRUPT
-    NVIC_SetPriority(RIT_IRQn, 1);    
-    NVIC_SetPriority(TIMER0_IRQn, 2); 
+    // --- PRIORITÀ INTERRUPT ---
+    // Timer 2 (Audio) deve avere priorità ALTA (0) per non gracchiare
+    // Timer 0 (Gioco) può avere priorità BASSA (3)
+    NVIC_SetPriority(TIMER2_IRQn, 0); 
+    NVIC_SetPriority(TIMER1_IRQn, 1);
+    NVIC_SetPriority(RIT_IRQn, 2);    
+    NVIC_SetPriority(TIMER0_IRQn, 3); 
     
-    for(i = 0; i < RIGHE_CAMPO; i++) {
-        for(j = 0; j < COLONNE_CAMPO; j++) {
-            griglia[i][j] = C_Nero;
-        }
-    }
-    
-    punteggio = 0; 
-    linee_completate_totali = 0;
-    
-    // Inizia in pausa
-    stato_gioco = GIOCO_IN_PAUSA;
-    
-    // Resetta i blocchi 
-    tetraminoCorrente.tipo = 0;
-    tetraminoSuccessivo.tipo = 0;
-    
+    // ... codice pulizia schermo e variabili ...
     LCD_Clear(C_Nero);
     disegna_griglia_statica(); 
     genera_blocco();
+
+    // --- ACCENSIONE HARDWARE TIMER 2 (Per la Musica) ---
+    LPC_SC->PCONP |= (1 << 22); // Accende Timer 2 (Bit 22)
+    
+    // --- START GIOCO (Timer 0) ---
+    // Timer 0 per il gioco (60Hz circa -> 0x65B9A)
+    init_timer(0, 0, 0, 3, 0x65B9A); 
+    enable_timer(0);
+    
+    // --- START MUSICA (Timer 2) ---
+    playNote(tetris_theme[0]);
 }
 
 void blocca_blocco(void) {
