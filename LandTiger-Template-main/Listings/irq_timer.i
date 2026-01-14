@@ -1891,9 +1891,8 @@ extern void alla_pressione_tasto1(void);
 
 
 
-//Default: 1.65
 
-
+// Default: 1.65 - Modifica questo valore per cambiare la velocità del brano
 
 
 
@@ -1903,6 +1902,7 @@ typedef char BOOL;
 
 
 
+// Durate delle note (Calcolate in base al clock)
 typedef enum note_durations
 {
  time_semibiscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 64.0f + 0.5), // 1/128
@@ -1914,29 +1914,68 @@ typedef enum note_durations
  time_semibreve = (unsigned int)(0x17D7840 * 1 * 1.6 + 0.5), // 1
 } NOTE_DURATION;
 
+// Frequenze in HERTZ (Standard Pitch)
+// Necessarie per la formula: ticks = 25MHz / (Freq * 2)
 typedef enum frequencies
 {
- a2b = 5351, // 103Hz k=5351 a2b
- b2 = 4500, // 123Hz k=4500 b2
- c3b = 4370, // 127Hz k)4370 c3b
- c3 = 4240, // 131Hz k=4240 c3
- d3 = 3779, // 147Hz k=3779 d3
- e3 = 3367, // 165Hz k=3367 e3
- f3 = 3175, // 175Hz k=3175 f3
- g3 = 2834, // 196Hz k=2834 g3
- a3b = 2670, // 208Hz k=2670 a4b
- a3 = 2525, // 220Hz k=2525 a3
- b3 = 2249, // 247Hz k=2249 b3
- c4 = 2120, // 262Hz k=2120 c4
- d4 = 1890, // 294Hz k=1890 d4
- e4 = 1684, // 330Hz k=1684 e4
- f4 = 1592, // 349Hz k=1592 f4
- g4 = 1417, // 392Hz k=1417 g4
- a4 = 1263, // 440Hz k=1263 a4
- b4 = 1125, // 494Hz k=1125 b4
- c5 = 1062, // 523Hz k=1062 c5
- pause = 0 // DO NOT SOUND
+ pause = 0,
+
+ // Ottava 2
+ a2b = 104, // Ab2 / G#2
+ a2 = 110,
+ b2b = 117,
+ b2 = 123,
+
+ // Ottava 3
+ c3 = 131,
+ c3d = 139, // C#3 / Db3
+ d3 = 147,
+ d3d = 156, // D#3 / Eb3
+ e3 = 165,
+ f3 = 175,
+ f3d = 185, // F#3 / Gb3
+ g3 = 196,
+ g3d = 208, // G#3 / Ab3 (a3b)
+ a3 = 220,
+ a3d = 233, // A#3 / Bb3
+ b3 = 247,
+
+ // Ottava 4 (Centrale)
+ c4 = 262,
+ c4d = 277,
+ d4 = 294,
+ d4d = 311,
+ e4 = 330,
+ f4 = 349,
+ f4d = 370,
+ g4 = 392,
+ g4d = 415,
+ a4 = 440, // Diapason
+ a4d = 466,
+ b4 = 494,
+
+ // Ottava 5 (Necessaria per Tetris parte alta)
+ c5 = 523,
+ c5d = 554,
+ d5 = 587,
+ d5d = 622,
+ e5 = 659,
+ f5 = 698,
+ f5d = 740,
+ g5 = 784,
+ g5d = 831,
+ a5 = 880,
+ a5d = 932,
+ b5 = 988,
+
+ // Ottava 6
+ c6 = 1047
+
 } FREQUENCY;
+
+// Alias per compatibilità con vecchi codici se usavano nomi diversi
+
+
 
 
 typedef struct
@@ -1957,37 +1996,40 @@ void TIMER0_IRQHandler (void)
 {
  if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 1)
  {
-  // Qui c'è la logica del gioco (come volevi tu)
   aggiorna_gioco();
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; // Reset flag
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; // Clear flag
  }
  return;
 }
 
-// TIMER 1: GESTIONE CAMBIO NOTA
+// TIMER 1: GESTIONE DURATA NOTA (Metronomo)
 void TIMER1_IRQHandler (void)
 {
  if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 1)
  {
   current_note++;
+  // Se trovi la pausa finale con durata 0, ricomincia da capo
   if(tetris_theme[current_note].freq == pause && tetris_theme[current_note].duration == 0) {
-   current_note = 0; // Ricomincia canzone
+   current_note = 0;
   }
   playNote(tetris_theme[current_note]);
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 1;
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 1; // Clear flag
  }
  return;
 }
 
-// TIMER 2: GESTIONE AUDIO (Speaker)
+// TIMER 2: GESTIONE AUDIO FREQUENZA (Speaker)
 void TIMER2_IRQHandler (void)
 {
  static int tick = 0;
- int volume = 800; // Regola volume (0-1023)
+
+ // --- VOLUME BASSO ---
+ // Il massimo è 1023. Imposta 200 per un suono "dolce" e basso.
+ int volume = 200;
 
  if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 1)
  {
-  // Gestione DAC (Suono)
+  // Scrivi nel DAC: valore << 6
   if (tick == 0) {
    ((LPC_DAC_TypeDef *) ((0x40080000UL) + 0x0C000) )->DACR = (volume << 6);
    tick = 1;
@@ -1997,7 +2039,7 @@ void TIMER2_IRQHandler (void)
    tick = 0;
   }
 
-  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 1; // Reset flag
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 1; // Clear flag
  }
  return;
 }

@@ -9,10 +9,63 @@
 
 
 
+# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 1 3
+# 56 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 3
+typedef signed char int8_t;
+typedef signed short int int16_t;
+typedef signed int int32_t;
+typedef signed long long int int64_t;
 
-//Default: 1.65
+
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long int uint64_t;
 
 
+
+
+
+typedef signed char int_least8_t;
+typedef signed short int int_least16_t;
+typedef signed int int_least32_t;
+typedef signed long long int int_least64_t;
+
+
+typedef unsigned char uint_least8_t;
+typedef unsigned short int uint_least16_t;
+typedef unsigned int uint_least32_t;
+typedef unsigned long long int uint_least64_t;
+
+
+
+
+typedef signed int int_fast8_t;
+typedef signed int int_fast16_t;
+typedef signed int int_fast32_t;
+typedef signed long long int int_fast64_t;
+
+
+typedef unsigned int uint_fast8_t;
+typedef unsigned int uint_fast16_t;
+typedef unsigned int uint_fast32_t;
+typedef unsigned long long int uint_fast64_t;
+
+
+
+
+
+
+typedef signed int intptr_t;
+typedef unsigned int uintptr_t;
+
+
+
+typedef signed long long intmax_t;
+typedef unsigned long long uintmax_t;
+# 5 "Source/music\\music.h" 2
+
+// Default: 1.65 - Modifica questo valore per cambiare la velocità del brano
 
 
 
@@ -22,6 +75,7 @@ typedef char BOOL;
 
 
 
+// Durate delle note (Calcolate in base al clock)
 typedef enum note_durations
 {
  time_semibiscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 64.0f + 0.5), // 1/128
@@ -33,29 +87,68 @@ typedef enum note_durations
  time_semibreve = (unsigned int)(0x17D7840 * 1 * 1.6 + 0.5), // 1
 } NOTE_DURATION;
 
+// Frequenze in HERTZ (Standard Pitch)
+// Necessarie per la formula: ticks = 25MHz / (Freq * 2)
 typedef enum frequencies
 {
- a2b = 5351, // 103Hz k=5351 a2b
- b2 = 4500, // 123Hz k=4500 b2
- c3b = 4370, // 127Hz k)4370 c3b
- c3 = 4240, // 131Hz k=4240 c3
- d3 = 3779, // 147Hz k=3779 d3
- e3 = 3367, // 165Hz k=3367 e3
- f3 = 3175, // 175Hz k=3175 f3
- g3 = 2834, // 196Hz k=2834 g3
- a3b = 2670, // 208Hz k=2670 a4b
- a3 = 2525, // 220Hz k=2525 a3
- b3 = 2249, // 247Hz k=2249 b3
- c4 = 2120, // 262Hz k=2120 c4
- d4 = 1890, // 294Hz k=1890 d4
- e4 = 1684, // 330Hz k=1684 e4
- f4 = 1592, // 349Hz k=1592 f4
- g4 = 1417, // 392Hz k=1417 g4
- a4 = 1263, // 440Hz k=1263 a4
- b4 = 1125, // 494Hz k=1125 b4
- c5 = 1062, // 523Hz k=1062 c5
- pause = 0 // DO NOT SOUND
+ pause = 0,
+
+ // Ottava 2
+ a2b = 104, // Ab2 / G#2
+ a2 = 110,
+ b2b = 117,
+ b2 = 123,
+
+ // Ottava 3
+ c3 = 131,
+ c3d = 139, // C#3 / Db3
+ d3 = 147,
+ d3d = 156, // D#3 / Eb3
+ e3 = 165,
+ f3 = 175,
+ f3d = 185, // F#3 / Gb3
+ g3 = 196,
+ g3d = 208, // G#3 / Ab3 (a3b)
+ a3 = 220,
+ a3d = 233, // A#3 / Bb3
+ b3 = 247,
+
+ // Ottava 4 (Centrale)
+ c4 = 262,
+ c4d = 277,
+ d4 = 294,
+ d4d = 311,
+ e4 = 330,
+ f4 = 349,
+ f4d = 370,
+ g4 = 392,
+ g4d = 415,
+ a4 = 440, // Diapason
+ a4d = 466,
+ b4 = 494,
+
+ // Ottava 5 (Necessaria per Tetris parte alta)
+ c5 = 523,
+ c5d = 554,
+ d5 = 587,
+ d5d = 622,
+ e5 = 659,
+ f5 = 698,
+ f5d = 740,
+ g5 = 784,
+ g5d = 831,
+ a5 = 880,
+ a5d = 932,
+ b5 = 988,
+
+ // Ottava 6
+ c6 = 1047
+
 } FREQUENCY;
+
+// Alias per compatibilità con vecchi codici se usavano nomi diversi
+
+
 
 
 typedef struct
@@ -123,66 +216,6 @@ typedef enum IRQn
 # 106 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h"
 # 1 "./Source/CMSIS_core\\core_cm3.h" 1
 # 29 "./Source/CMSIS_core\\core_cm3.h" 3
-
-
-
-
-
-# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 1 3
-# 56 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 3
-typedef signed char int8_t;
-typedef signed short int int16_t;
-typedef signed int int32_t;
-typedef signed long long int int64_t;
-
-
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long int uint64_t;
-
-
-
-
-
-typedef signed char int_least8_t;
-typedef signed short int int_least16_t;
-typedef signed int int_least32_t;
-typedef signed long long int int_least64_t;
-
-
-typedef unsigned char uint_least8_t;
-typedef unsigned short int uint_least16_t;
-typedef unsigned int uint_least32_t;
-typedef unsigned long long int uint_least64_t;
-
-
-
-
-typedef signed int int_fast8_t;
-typedef signed int int_fast16_t;
-typedef signed int int_fast32_t;
-typedef signed long long int int_fast64_t;
-
-
-typedef unsigned int uint_fast8_t;
-typedef unsigned int uint_fast16_t;
-typedef unsigned int uint_fast32_t;
-typedef unsigned long long int uint_fast64_t;
-
-
-
-
-
-
-typedef signed int intptr_t;
-typedef unsigned int uintptr_t;
-
-
-
-typedef signed long long intmax_t;
-typedef unsigned long long uintmax_t;
-# 35 "./Source/CMSIS_core\\core_cm3.h" 2 3
 # 63 "./Source/CMSIS_core\\core_cm3.h" 3
 # 1 "./Source/CMSIS_core\\cmsis_version.h" 1 3
 # 29 "./Source/CMSIS_core\\cmsis_version.h" 3
@@ -1870,23 +1903,22 @@ void playNote(NOTE note)
 {
  if(note.freq != pause)
  {
-  // --- FREQUENZA SU TIMER 2 (Non più Timer 0) ---
   reset_timer(2);
 
-  // 1. Calcolo Tick: 25MHz / (Freq * 2)
+  // Calcola i tick per il Timer 2 (Frequenza)
+  // 25MHz / (Freq * 2)
   uint32_t ticks = 25000000 / (note.freq * 2);
 
-  // 2. Inizializza Timer 2 con la frequenza della nota
   init_timer(2, 0, 0, 3, ticks);
 
-  // 3. Configura DAC (P0.26) per l'uscita audio
+  // Configura pin P0.26 come Analog Output (DAC)
   ((LPC_PINCON_TypeDef *) ((0x40000000UL) + 0x2C000) )->PINSEL1 &= ~(3 << 20);
   ((LPC_PINCON_TypeDef *) ((0x40000000UL) + 0x2C000) )->PINSEL1 |= (2 << 20);
 
   enable_timer(2);
  }
 
- // --- DURATA SU TIMER 1 (Rimane uguale) ---
+ // Imposta la durata su Timer 1
  reset_timer(1);
  init_timer(1, 0, 0, 3, note.duration);
  enable_timer(1);
@@ -1894,6 +1926,5 @@ void playNote(NOTE note)
 
 BOOL isNotePlaying(void)
 {
- // Controlla Timer 2 e Timer 1
  return ((((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->TCR != 0) || (((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->TCR != 0));
 }

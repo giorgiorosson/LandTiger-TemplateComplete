@@ -2352,9 +2352,8 @@ extern __attribute__((__nothrow__)) void __use_no_semihosting(void);
 
 
 
-//Default: 1.65
 
-
+// Default: 1.65 - Modifica questo valore per cambiare la velocità del brano
 
 
 
@@ -2364,6 +2363,7 @@ typedef char BOOL;
 
 
 
+// Durate delle note (Calcolate in base al clock)
 typedef enum note_durations
 {
  time_semibiscroma = (unsigned int)(0x17D7840 * 1 * 1.6 / 64.0f + 0.5), // 1/128
@@ -2375,29 +2375,68 @@ typedef enum note_durations
  time_semibreve = (unsigned int)(0x17D7840 * 1 * 1.6 + 0.5), // 1
 } NOTE_DURATION;
 
+// Frequenze in HERTZ (Standard Pitch)
+// Necessarie per la formula: ticks = 25MHz / (Freq * 2)
 typedef enum frequencies
 {
- a2b = 5351, // 103Hz k=5351 a2b
- b2 = 4500, // 123Hz k=4500 b2
- c3b = 4370, // 127Hz k)4370 c3b
- c3 = 4240, // 131Hz k=4240 c3
- d3 = 3779, // 147Hz k=3779 d3
- e3 = 3367, // 165Hz k=3367 e3
- f3 = 3175, // 175Hz k=3175 f3
- g3 = 2834, // 196Hz k=2834 g3
- a3b = 2670, // 208Hz k=2670 a4b
- a3 = 2525, // 220Hz k=2525 a3
- b3 = 2249, // 247Hz k=2249 b3
- c4 = 2120, // 262Hz k=2120 c4
- d4 = 1890, // 294Hz k=1890 d4
- e4 = 1684, // 330Hz k=1684 e4
- f4 = 1592, // 349Hz k=1592 f4
- g4 = 1417, // 392Hz k=1417 g4
- a4 = 1263, // 440Hz k=1263 a4
- b4 = 1125, // 494Hz k=1125 b4
- c5 = 1062, // 523Hz k=1062 c5
- pause = 0 // DO NOT SOUND
+ pause = 0,
+
+ // Ottava 2
+ a2b = 104, // Ab2 / G#2
+ a2 = 110,
+ b2b = 117,
+ b2 = 123,
+
+ // Ottava 3
+ c3 = 131,
+ c3d = 139, // C#3 / Db3
+ d3 = 147,
+ d3d = 156, // D#3 / Eb3
+ e3 = 165,
+ f3 = 175,
+ f3d = 185, // F#3 / Gb3
+ g3 = 196,
+ g3d = 208, // G#3 / Ab3 (a3b)
+ a3 = 220,
+ a3d = 233, // A#3 / Bb3
+ b3 = 247,
+
+ // Ottava 4 (Centrale)
+ c4 = 262,
+ c4d = 277,
+ d4 = 294,
+ d4d = 311,
+ e4 = 330,
+ f4 = 349,
+ f4d = 370,
+ g4 = 392,
+ g4d = 415,
+ a4 = 440, // Diapason
+ a4d = 466,
+ b4 = 494,
+
+ // Ottava 5 (Necessaria per Tetris parte alta)
+ c5 = 523,
+ c5d = 554,
+ d5 = 587,
+ d5d = 622,
+ e5 = 659,
+ f5 = 698,
+ f5d = 740,
+ g5 = 784,
+ g5d = 831,
+ a5 = 880,
+ a5d = 932,
+ b5 = 988,
+
+ // Ottava 6
+ c6 = 1047
+
 } FREQUENCY;
+
+// Alias per compatibilità con vecchi codici se usavano nomi diversi
+
+
 
 
 typedef struct
@@ -2409,52 +2448,63 @@ typedef struct
 void playNote(NOTE note);
 BOOL isNotePlaying(void);
 # 6 "Source/game.c" 2
+# 1 "Source\\timer/timer.h" 1
+# 14 "Source\\timer/timer.h"
+//uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
+//extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );
+extern uint32_t init_timer( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval );
+extern void enable_timer( uint8_t timer_num );
+extern void disable_timer( uint8_t timer_num );
+extern void reset_timer( uint8_t timer_num );
+void toggle_timer( uint8_t timer_num );
+unsigned int get_timer_value(uint8_t timer_num);
+uint32_t is_timer_enabled ( uint8_t timer_num);
+void power_on_timer2();
+void power_on_timer3();
+float get_timer_value_in_sec(uint8_t timer_num);
 
-// --- Inserire dopo gli include in game.c ---
 
-// Definizione note per la canzone (Korobeiniki - Tetris Theme)
-NOTE tetris_theme[] = {
-    // Prima parte
-    {e4, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
-    {c4, time_croma}, {b3, time_croma}, {a3, time_semiminima}, {a3, time_croma},
-    {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
-    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima},
-    {e4, time_semiminima}, {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
+extern void TIMER0_IRQHandler (void);
+extern void TIMER1_IRQHandler (void);
+extern void TIMER2_IRQHandler (void);
+extern void TIMER3_IRQHandler (void);
+# 7 "Source/game.c" 2
 
-    // Pausa breve
-    {pause, time_croma},
-
-    // Seconda parte
-    {d4, time_semiminima}, {f4, time_croma}, {a4, time_semiminima}, {g4, time_croma}, {f4, time_croma},
-    {e4, time_semiminima}, {c4, time_croma}, {e4, time_semiminima}, {d4, time_croma}, {c4, time_croma},
-    {b3, time_semiminima}, {b3, time_croma}, {c4, time_croma}, {d4, time_semiminima}, {e4, time_semiminima},
-    {c4, time_semiminima}, {a3, time_semiminima}, {a3, time_semiminima},
-
-    // TAPPO DI FINE (Importante per il loop)
-    {pause, 0}
-};
 // Variabili Globali
 uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne];
 Tetramino tetraminoCorrente;
 Tetramino tetraminoSuccessivo;
-
-// metto PAUSED così il gioco non parte da solo
 volatile StatoGioco stato_gioco = GIOCO_IN_PAUSA;
 
 int punteggio = 0;
 int linee_completate_totali = 0;
 volatile int record_punteggio = 0;
-
 volatile int mod_caduta_rapida = 0;
 volatile int richiesta_riavvio = 0;
 
-
-// Variabili Esterne dal RIT (Joystick)
 extern volatile int J_left;
 extern volatile int J_right;
 extern volatile int J_up;
 extern volatile int J_down;
-// posizione dei blocchi come distanze dal point
+
+// --- SPARTITO TETRIS (Theme A - Korobeiniki) ---
+NOTE tetris_theme[] = {
+    // Parte A
+    {e5, time_semiminima}, {b4, time_croma}, {c5, time_croma}, {d5, time_semiminima}, {c5, time_croma}, {b4, time_croma},
+    {a4, time_semiminima}, {a4, time_croma}, {c5, time_croma}, {e5, time_semiminima}, {d5, time_croma}, {c5, time_croma},
+    {b4, time_semiminima}, {b4, time_croma}, {c5, time_croma}, {d5, time_semiminima}, {e5, time_semiminima},
+    {c5, time_semiminima}, {a4, time_semiminima}, {a4, time_semiminima},
+    {pause, time_croma},
+
+    // Parte B
+    {d5, time_semiminima}, {f5, time_croma}, {a5, time_semiminima}, {g5, time_croma}, {f5, time_croma},
+    {e5, time_semiminima}, {c5, time_croma}, {e5, time_semiminima}, {d5, time_croma}, {c5, time_croma},
+    {b4, time_semiminima}, {b4, time_croma}, {c5, time_croma}, {d5, time_semiminima}, {e5, time_semiminima},
+    {c5, time_semiminima}, {a4, time_semiminima}, {a4, time_semiminima},
+
+    {pause, 0} // Fine brano
+};
+NOTE sfx_rotate = {a5, time_biscroma};
 // Forme dei blocchi
 const Punto FORME_TETRAMINI[7][4] = {
     {{0, -1}, {0, 0}, {0, 1}, {0, 2}}, // I
@@ -2470,19 +2520,15 @@ const uint16_t COLORI_TETRAMINI[7] = {
     0x07FF // Ciano (I piece) - R=0, G=63, B=31 (Nota: 0x7FFF è ciano chiaro, 0x07FF è puro ciano standard), 0x001F // Blu (J piece) - R=0, G=0, B=31, 0xFD20 // Arancione (L piece) - R=31, G=40, B=0, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x07E0 // Verde (S piece) - R=0, G=63, B=0, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0xF800 // Rosso (Z piece) - R=31, G=0, B=0
 };
 
-// Funzioni di Disegno
-
+// --- Funzioni Grafiche ---
 void disegna_cella_griglia(int riga, int colonna, uint16_t colore) {
     int x0 = 5 + (colonna * 15 // Dimensione in pixel di ogni blocco);
     int y0 = 10 + (riga * 15 // Dimensione in pixel di ogni blocco);
     int i, j;
-
     for (i = 0; i < 15 // Dimensione in pixel di ogni blocco; i++) {
         for (j = 0; j < 15 // Dimensione in pixel di ogni blocco; j++) {
-            if (i == 15 // Dimensione in pixel di ogni blocco - 1 || j == 15 // Dimensione in pixel di ogni blocco - 1)
-                LCD_SetPoint(x0 + j, y0 + i, 0x0000 // Sfondo);
-            else
-                LCD_SetPoint(x0 + j, y0 + i, colore);
+            if (i == 15 // Dimensione in pixel di ogni blocco - 1 || j == 15 // Dimensione in pixel di ogni blocco - 1) LCD_SetPoint(x0 + j, y0 + i, 0x0000 // Sfondo);
+            else LCD_SetPoint(x0 + j, y0 + i, colore);
         }
     }
 }
@@ -2492,7 +2538,6 @@ void disegna_tetramino(Tetramino blocco, uint16_t colore) {
     for(i = 0; i < 4; i++) {
         int r = blocco.posizione.riga + blocco.celle[i].riga;
         int c = blocco.posizione.colonna + blocco.celle[i].colonna;
-
         if(r >= 0 && r < 20 // Righe della griglia di gioco && c >= 0 && c < 10 // Colonne) {
             disegna_cella_griglia(r, c, colore);
         }
@@ -2507,7 +2552,6 @@ void disegna_griglia_statica(void) {
     int width_px = 10 // Colonne * 15 // Dimensione in pixel di ogni blocco + 2;
     int height_px = 20 // Righe della griglia di gioco * 15 // Dimensione in pixel di ogni blocco + 2;
 
-    // Cornice
     for(i = 0; i < width_px; i++) {
         LCD_SetPoint(x_start + i, y_start, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
         LCD_SetPoint(x_start + i, y_start + height_px, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
@@ -2517,63 +2561,40 @@ void disegna_griglia_statica(void) {
         LCD_SetPoint(x_start + width_px, y_start + i, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31);
     }
 
-    //INTERFACCIA LATERALE
-
-    // Score
     GUI_Text(160, 20, (uint8_t *) "SCORE", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
     sprintf(str, "%d", punteggio);
     GUI_Text(160, 40, (uint8_t *)str, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
 
-    // Lines
     GUI_Text(160, 70, (uint8_t *) "LINES", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
     sprintf(str, "%d", linee_completate_totali);
     GUI_Text(160, 90, (uint8_t *)str, 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
 
-    // High Score
-    GUI_Text(160, 120, (uint8_t *) "HI-SCORE", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
-    sprintf(str, "%d", record_punteggio);
-    GUI_Text(160, 140, (uint8_t *)str, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
-
-    // Next
     GUI_Text(160, 170, (uint8_t *) "NEXT", 0xF81F // 0xF81F (T piece) - R=31, G=0, B=31, 0x0000 // Sfondo);
-
-    // Status Text (Se siamo in pausa all'inizio) -> SPOSTATO A 265
-    if (stato_gioco == GIOCO_IN_PAUSA) {
-        GUI_Text(160, 265, (uint8_t *) "PAUSED", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
-    }
 }
 
-// --- Funzione Anteprima ---
 void disegna_blocco_anteprima(Tetramino blk, uint16_t colore) {
     int start_x = 160;
-    int start_y = 190; // Il blocco viene disegnato da qui in giù (finisce circa a 250)
+    int start_y = 190;
     int i, a, b;
-
     for(i = 0; i < 4; i++) {
         int r = blk.celle[i].riga + 1;
         int c = blk.celle[i].colonna + 1;
         int px = start_x + (c * 15 // Dimensione in pixel di ogni blocco);
         int py = start_y + (r * 15 // Dimensione in pixel di ogni blocco);
-
         for (a = 0; a < 15 // Dimensione in pixel di ogni blocco; a++) {
             for (b = 0; b < 15 // Dimensione in pixel di ogni blocco; b++) {
-                if (a == 15 // Dimensione in pixel di ogni blocco - 1 || b == 15 // Dimensione in pixel di ogni blocco - 1)
-                    LCD_SetPoint(px + b, py + a, 0x0000 // Sfondo);
-                else
-                    LCD_SetPoint(px + b, py + a, colore);
+                if (a == 15 // Dimensione in pixel di ogni blocco - 1 || b == 15 // Dimensione in pixel di ogni blocco - 1) LCD_SetPoint(px + b, py + a, 0x0000 // Sfondo);
+                else LCD_SetPoint(px + b, py + a, colore);
             }
         }
     }
 }
-
-// Logica di Gioco
 
 int controlla_collisione(Tetramino b) {
     int i;
     for(i = 0; i < 4; i++) {
         int r = b.posizione.riga + b.celle[i].riga;
         int c = b.posizione.colonna + b.celle[i].colonna;
-
         if (r >= 20 // Righe della griglia di gioco) return 1;
         if (c < 0 || c >= 10 // Colonne) return 1;
         if (r >= 0 && griglia[r][c] != 0x0000 // Sfondo) return 1;
@@ -2589,167 +2610,104 @@ void controlla_linee(void) {
     for(row = 20 // Righe della griglia di gioco - 1; row >= 0; row--) {
         int full = 1;
         for(col = 0; col < 10 // Colonne; col++) {
-            if(griglia[row][col] == 0x0000 // Sfondo) {
-                full = 0; break;
-            }
+            if(griglia[row][col] == 0x0000 // Sfondo) { full = 0; break; }
         }
-
         if(full) {
             linee_cancellate++;
             for(k = row; k > 0; k--) {
-                for(col = 0; col < 10 // Colonne; col++) {
-                    griglia[k][col] = griglia[k-1][col];
-                }
+                for(col = 0; col < 10 // Colonne; col++) griglia[k][col] = griglia[k-1][col];
             }
-            for(col = 0; col < 10 // Colonne; col++) {
-                griglia[0][col] = 0x0000 // Sfondo;
-            }
+            for(col = 0; col < 10 // Colonne; col++) griglia[0][col] = 0x0000 // Sfondo;
             row++;
         }
     }
 
     if(linee_cancellate > 0) {
-        // Aggiorna Linee Totali
         linee_completate_totali += linee_cancellate;
         sprintf(str, "%d", linee_completate_totali);
         GUI_Text(160, 90, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
-
-        // Aggiorna Punti
-        if (linee_cancellate == 4) {
-            punteggio += 600;
-        } else {
-            punteggio += (linee_cancellate * 100);
-        }
-
+        punteggio += (linee_cancellate * 100);
         sprintf(str, "%d", punteggio);
         GUI_Text(160, 40, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
 
-        // Ridisegna griglia
         for(row=0; row<20 // Righe della griglia di gioco; row++) {
-             for(col=0; col<10 // Colonne; col++) {
-                 disegna_cella_griglia(row, col, griglia[row][col]);
-             }
+             for(col=0; col<10 // Colonne; col++) disegna_cella_griglia(row, col, griglia[row][col]);
         }
     }
 }
 
 void genera_blocco(void) {
     int i;
-    // Primo avvio
     if (tetraminoCorrente.tipo == 0 && tetraminoSuccessivo.tipo == 0) {
         tetraminoSuccessivo.tipo = (TipoBlocco)(rand() % 7);
         tetraminoSuccessivo.colore = COLORI_TETRAMINI[tetraminoSuccessivo.tipo];
         tetraminoSuccessivo.rotazione = 0;
         for(i=0; i<4; i++) tetraminoSuccessivo.celle[i] = FORME_TETRAMINI[tetraminoSuccessivo.tipo][i];
     }
-
     tetraminoCorrente = tetraminoSuccessivo;
     tetraminoCorrente.posizione.riga = 1;
     tetraminoCorrente.posizione.colonna = 10 // Colonne / 2;
-
-    disegna_blocco_anteprima(tetraminoCorrente, 0x0000 // Sfondo); // Cancella
+    disegna_blocco_anteprima(tetraminoCorrente, 0x0000 // Sfondo);
 
     tetraminoSuccessivo.tipo = (TipoBlocco)(rand() % 7);
     tetraminoSuccessivo.colore = COLORI_TETRAMINI[tetraminoSuccessivo.tipo];
     tetraminoSuccessivo.rotazione = 0;
     for(i=0; i<4; i++) tetraminoSuccessivo.celle[i] = FORME_TETRAMINI[tetraminoSuccessivo.tipo][i];
-
-    disegna_blocco_anteprima(tetraminoSuccessivo, tetraminoSuccessivo.colore); // Disegna
+    disegna_blocco_anteprima(tetraminoSuccessivo, tetraminoSuccessivo.colore);
 }
 
-// funzione viene chiamata da KEY 1 (IRQ_RIT)
-void alla_pressione_tasto1(void) {
-    // --- GENERAZIONE CASUALE (SEED) ---
-    // Usiamo il valore attuale del Timer0 (TC) come seme.
-
-    srand(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->TC);
-
-    // 1. Se GAME OVER Ricomincia partita
-    if (stato_gioco == GIOCO_FINITO) {
-        // NON richiamare game_init() qui dentro (siamo in RIT IRQ)
-        richiesta_riavvio = 1; // segnalo alla logica di gioco che deve riavviare
-        return;
-    }
-
-    // 2. Se PAUSA Riprendi
-    if (stato_gioco == GIOCO_IN_PAUSA) {
-        stato_gioco = GIOCO_IN_CORSO;
-
-        // Cancella la scritta "PAUSED" scrivendoci sopra spazi neri
-        GUI_Text(160, 265, (uint8_t *) "      ", 0x0000 // Sfondo, 0x0000 // Sfondo);
-
-
-
-    }
-    // 3. Se RUNNING metti in Pausa
-    else if (stato_gioco == GIOCO_IN_CORSO) {
-        stato_gioco = GIOCO_IN_PAUSA;
-        GUI_Text(160, 265, (uint8_t *) "PAUSED", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
-    }
-}
+// --- INITIALIZZAZIONE ---
 void inizializza_gioco(void) {
     int i, j;
 
-    // --- PRIORITÀ INTERRUPT ---
-    // Timer 2 (Audio) deve avere priorità ALTA (0) per non gracchiare
-    // Timer 0 (Gioco) può avere priorità BASSA (3)
+    // Configura Timer 2 (Audio) alta priorità, Timer 0 (Gioco) bassa
     __NVIC_SetPriority(TIMER2_IRQn, 0);
     __NVIC_SetPriority(TIMER1_IRQn, 1);
     __NVIC_SetPriority(RIT_IRQn, 2);
     __NVIC_SetPriority(TIMER0_IRQn, 3);
 
-    // ... codice pulizia schermo e variabili ...
+    for(i = 0; i < 20 // Righe della griglia di gioco; i++) for(j = 0; j < 10 // Colonne; j++) griglia[i][j] = 0x0000 // Sfondo;
+
+    punteggio = 0;
+    linee_completate_totali = 0;
+    stato_gioco = GIOCO_IN_PAUSA;
+    tetraminoCorrente.tipo = 0;
+    tetraminoSuccessivo.tipo = 0;
+
     LCD_Clear(0x0000 // Sfondo);
     disegna_griglia_statica();
     genera_blocco();
 
-    // --- ACCENSIONE HARDWARE TIMER 2 (Per la Musica) ---
-    ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22); // Accende Timer 2 (Bit 22)
+    // 1. Accendi Timer 2 per la musica (PCONP bit 22)
+    ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22);
 
-    // --- START GIOCO (Timer 0) ---
-    // Timer 0 per il gioco (60Hz circa -> 0x65B9A)
+    // 2. Init Timer 0 per il GIOCO (60Hz circa)
     init_timer(0, 0, 0, 3, 0x65B9A);
     enable_timer(0);
 
-    // --- START MUSICA (Timer 2) ---
+    // 3. Fai partire la musica (usa Timer 2 per freq, Timer 1 per durata)
     playNote(tetris_theme[0]);
 }
 
 void blocca_blocco(void) {
     int i;
     char str[15];
-
     for(i = 0; i < 4; i++) {
         int r = tetraminoCorrente.posizione.riga + tetraminoCorrente.celle[i].riga;
         int c = tetraminoCorrente.posizione.colonna + tetraminoCorrente.celle[i].colonna;
-        if(r >= 0 && r < 20 // Righe della griglia di gioco && c >= 0 && c < 10 // Colonne) {
-            griglia[r][c] = tetraminoCorrente.colore;
-        }
+        if(r >= 0 && r < 20 // Righe della griglia di gioco && c >= 0 && c < 10 // Colonne) griglia[r][c] = tetraminoCorrente.colore;
     }
-
-    // Punti per piazzamento
     punteggio += 10;
     sprintf(str, "%d", punteggio);
     GUI_Text(160, 40, (uint8_t *)str, 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
-
     mod_caduta_rapida = 0;
     controlla_linee();
-
     genera_blocco();
     disegna_tetramino(tetraminoCorrente, tetraminoCorrente.colore);
 
     if (controlla_collisione(tetraminoCorrente)) {
         stato_gioco = GIOCO_FINITO;
         GUI_Text(50, 150, (uint8_t *)"GAME OVER", 0xF800 // Rosso (Z piece) - R=31, G=0, B=0, 0xFFFF // Testo/Bordi);
-
-        if (punteggio > record_punteggio) {
-            record_punteggio = punteggio;
-            sprintf(str, "%d", record_punteggio);
-            GUI_Text(160, 140, (uint8_t *)str, 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
-            GUI_Text(50, 170, (uint8_t *)"NEW RECORD!", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
-        }
-
-        // Messaggio per ricominciare
         GUI_Text(30, 190, (uint8_t *)"PRESS KEY1", 0xFFFF // Testo/Bordi, 0x0000 // Sfondo);
     }
 }
@@ -2765,45 +2723,39 @@ void ruota_blocco(void) {
         temp.celle[i].colonna = -oldRow;
     }
     temp.rotazione = (temp.rotazione + 1) % 4;
+
+    // Se la rotazione è valida (non sbatte contro muri o blocchi)
     if (controlla_collisione(temp) == 0) {
         disegna_tetramino(tetraminoCorrente, 0x0000 // Sfondo);
         tetraminoCorrente = temp;
         disegna_tetramino(tetraminoCorrente, tetraminoCorrente.colore);
+
+        // >>> AGGIUNGI QUESTA RIGA PER IL SUONO <<<
+        playNote(sfx_rotate);
     }
 }
 
 static int ticks = 0;
-//qui setto il restart
+
 void aggiorna_gioco(void) {
     Tetramino temp;
-
-
     if (richiesta_riavvio) {
         richiesta_riavvio = 0;
-
         inizializza_gioco();
-
         return;
     }
-
-    // Se non è RUNNING, non fare nulla (Pausa o Game Over)
     if (stato_gioco != GIOCO_IN_CORSO) return;
 
     if (mod_caduta_rapida == 1) {
         disegna_tetramino(tetraminoCorrente, 0x0000 // Sfondo);
-        while (controlla_collisione(tetraminoCorrente) == 0) {
-            tetraminoCorrente.posizione.riga++;
-        }
+        while (controlla_collisione(tetraminoCorrente) == 0) tetraminoCorrente.posizione.riga++;
         tetraminoCorrente.posizione.riga--;
         disegna_tetramino(tetraminoCorrente, tetraminoCorrente.colore);
         blocca_blocco();
         return;
     }
 
-    if (J_up != 0) {
-        ruota_blocco();
-        J_up = 0;
-    }
+    if (J_up != 0) { ruota_blocco(); J_up = 0; }
     if (J_left != 0) {
         temp = tetraminoCorrente;
         temp.posizione.colonna--;
@@ -2840,5 +2792,18 @@ void aggiorna_gioco(void) {
             tetraminoCorrente.posizione.riga++;
             disegna_tetramino(tetraminoCorrente, tetraminoCorrente.colore);
         }
+    }
+}
+
+void alla_pressione_tasto1(void) {
+    srand(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->TC);
+    if (stato_gioco == GIOCO_FINITO) { richiesta_riavvio = 1; return; }
+    if (stato_gioco == GIOCO_IN_PAUSA) {
+        stato_gioco = GIOCO_IN_CORSO;
+        GUI_Text(160, 265, (uint8_t *) "      ", 0x0000 // Sfondo, 0x0000 // Sfondo);
+    }
+    else if (stato_gioco == GIOCO_IN_CORSO) {
+        stato_gioco = GIOCO_IN_PAUSA;
+        GUI_Text(160, 265, (uint8_t *) "PAUSED", 0xFFE0 // Giallo (O piece) - R=31, G=63, B=0, 0x0000 // Sfondo);
     }
 }
