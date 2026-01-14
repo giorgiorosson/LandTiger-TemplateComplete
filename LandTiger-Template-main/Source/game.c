@@ -237,37 +237,52 @@ void alla_pressione_tasto1(void) {
     }
 }
 
-// --- FUNZIONE DI INIZIALIZZAZIONE (MODIFICATA) ---
+// ... (codice precedente invariato) ...
+
 void inizializza_gioco(void) {
     int i, j;
     
-    // Priorità
-    NVIC_SetPriority(TIMER0_IRQn, 0); 
-    NVIC_SetPriority(TIMER1_IRQn, 1);
-    NVIC_SetPriority(RIT_IRQn, 2);    
-    NVIC_SetPriority(TIMER2_IRQn, 3); 
-
-    // Pulisci schermo
-    for(i=0;i<RIGHE_CAMPO;i++) for(j=0;j<COLONNE_CAMPO;j++) griglia[i][j]=C_Nero;
-    punteggio = 0;
+    // Configura le priorità: Musica (T0/T1) alta, Gioco (T2) bassa
+    NVIC_SetPriority(TIMER0_IRQn, 0); // Musica Freq (Alta priorità)
+    NVIC_SetPriority(TIMER1_IRQn, 1); // Musica Durata
+    NVIC_SetPriority(RIT_IRQn, 2);    // Joystick
+    NVIC_SetPriority(TIMER2_IRQn, 3); // Gioco (Bassa priorità)
+    
+    for(i = 0; i < RIGHE_CAMPO; i++) {
+        for(j = 0; j < COLONNE_CAMPO; j++) {
+            griglia[i][j] = C_Nero;
+        }
+    }
+    
+    punteggio = 0; 
     linee_completate_totali = 0;
     stato_gioco = GIOCO_IN_PAUSA;
+    
+    tetraminoCorrente.tipo = 0;
+    tetraminoSuccessivo.tipo = 0;
     
     LCD_Clear(C_Nero);
     disegna_griglia_statica(); 
     genera_blocco();
 
-    // --- ACCENSIONE TIMER 2 ---
-    // 1. Dai corrente al Timer 2
-    LPC_SC->PCONP |= (1 << 22); 
+    // --- PARTE MANCANTE FONDAMENTALE ---
     
-    // 2. Inizializza (60Hz circa = 416666 tick)
+    // 1. Accendi elettricamente il Timer 2 (altrimenti non parte!)
+    // Nota: power_on_timer2() è in lib_timer.c, se non la vede usa la riga sotto:
+    LPC_SC->PCONP |= (1 << 22); 
+
+    // 2. Inizializza Timer 2: TimerNum=2, Prescaler=0, Match=0, Config=3, Valore=0x65B9A
+    // 0x65B9A corrisponde a circa 60Hz (velocità di gioco fluida)
     init_timer(2, 0, 0, 3, 0x65B9A); 
+    
+    // 3. Avvia il Timer 2
     enable_timer(2);
     
-    // --- START MUSICA ---
-    playNote(tetris_theme[0]);
+    // Se vuoi la musica, scommenta questa riga (DOPO aver fixato music.c)
+    // playNote(tetris_theme[0]); 
 }
+
+// ... (resto del file invariato) ...
 void blocca_blocco(void) {
     int i;
     char str[15];

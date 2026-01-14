@@ -2670,37 +2670,52 @@ void alla_pressione_tasto1(void) {
     }
 }
 
-// --- FUNZIONE DI INIZIALIZZAZIONE (MODIFICATA) ---
+// ... (codice precedente invariato) ...
+
 void inizializza_gioco(void) {
     int i, j;
 
-    // Priorità
-    __NVIC_SetPriority(TIMER0_IRQn, 0);
-    __NVIC_SetPriority(TIMER1_IRQn, 1);
-    __NVIC_SetPriority(RIT_IRQn, 2);
-    __NVIC_SetPriority(TIMER2_IRQn, 3);
+    // Configura le priorità: Musica (T0/T1) alta, Gioco (T2) bassa
+    __NVIC_SetPriority(TIMER0_IRQn, 0); // Musica Freq (Alta priorità)
+    __NVIC_SetPriority(TIMER1_IRQn, 1); // Musica Durata
+    __NVIC_SetPriority(RIT_IRQn, 2); // Joystick
+    __NVIC_SetPriority(TIMER2_IRQn, 3); // Gioco (Bassa priorità)
 
-    // Pulisci schermo
-    for(i=0;i<20 // Righe della griglia di gioco;i++) for(j=0;j<10 // Colonne;j++) griglia[i][j]=0x0000 // Sfondo;
+    for(i = 0; i < 20 // Righe della griglia di gioco; i++) {
+        for(j = 0; j < 10 // Colonne; j++) {
+            griglia[i][j] = 0x0000 // Sfondo;
+        }
+    }
+
     punteggio = 0;
     linee_completate_totali = 0;
     stato_gioco = GIOCO_IN_PAUSA;
+
+    tetraminoCorrente.tipo = 0;
+    tetraminoSuccessivo.tipo = 0;
 
     LCD_Clear(0x0000 // Sfondo);
     disegna_griglia_statica();
     genera_blocco();
 
-    // --- ACCENSIONE TIMER 2 ---
-    // 1. Dai corrente al Timer 2
+    // --- PARTE MANCANTE FONDAMENTALE ---
+
+    // 1. Accendi elettricamente il Timer 2 (altrimenti non parte!)
+    // Nota: power_on_timer2() è in lib_timer.c, se non la vede usa la riga sotto:
     ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22);
 
-    // 2. Inizializza (60Hz circa = 416666 tick)
+    // 2. Inizializza Timer 2: TimerNum=2, Prescaler=0, Match=0, Config=3, Valore=0x65B9A
+    // 0x65B9A corrisponde a circa 60Hz (velocità di gioco fluida)
     init_timer(2, 0, 0, 3, 0x65B9A);
+
+    // 3. Avvia il Timer 2
     enable_timer(2);
 
-    // --- START MUSICA ---
-    playNote(tetris_theme[0]);
+    // Se vuoi la musica, scommenta questa riga (DOPO aver fixato music.c)
+    // playNote(tetris_theme[0]);
 }
+
+// ... (resto del file invariato) ...
 void blocca_blocco(void) {
     int i;
     char str[15];

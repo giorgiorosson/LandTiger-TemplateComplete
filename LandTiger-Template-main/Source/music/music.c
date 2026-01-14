@@ -8,17 +8,17 @@ void playNote(NOTE note)
     {
         reset_timer(0);
         
-        // --- CORREZIONE MATEMATICA FONDAMENTALE ---
-        // Il clock è 25MHz. Dobbiamo calcolare i tick per semi-periodo.
-        // Esempio: 440Hz -> vogliamo un cambio stato ogni 1/880 di secondo.
-        // 25.000.000 / (440 * 2) = 28.409 tick.
+        // --- CORREZIONE MATEMATICA CRITICA ---
+        // Il clock è 25MHz.
+        // Esempio: 440Hz -> il timer deve contare 28.409 cicli, non 440!
+        // Senza questa formula, il processore si blocca per i troppi interrupt.
         uint32_t ticks = 25000000 / (note.freq * 2);
         
         init_timer(0, 0, 0, 3, ticks);
         
-        // Configurazione DAC (P0.26 come AOUT)
-        LPC_PINCON->PINSEL1 &= ~(3 << 20);
-        LPC_PINCON->PINSEL1 |= (2 << 20);
+        // Configura P0.26 come uscita Analogica (DAC) per il suono pulito
+        LPC_PINCON->PINSEL1 &= ~(3 << 20); // Pulisce
+        LPC_PINCON->PINSEL1 |= (2 << 20);  // Imposta AOUT
         
         enable_timer(0);
     }

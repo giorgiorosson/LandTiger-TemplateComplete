@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\sample_JOYSTICK.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\sample_JOYSTICK.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Wed Jan 14 12:33:03 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Wed Jan 14 12:48:37 2026
 <BR><P>
 <H3>Maximum Stack Usage =        872 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -432,7 +432,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_sputc
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;controlla_linee
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_griglia_statica
 </UL>
@@ -457,9 +457,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LCD_SetPoint
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
-<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ruota_blocco
-<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ruota_blocco
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 </UL>
 
 <P><STRONG><a name="[52]"></a>disegna_griglia_statica</STRONG> (Thumb, 308 bytes, Stack size 40 bytes, game.o(.text))
@@ -470,7 +470,7 @@ Global Symbols
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GUI_Text
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LCD_SetPoint
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 </UL>
 
@@ -492,7 +492,7 @@ Global Symbols
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GUI_Text
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LCD_SetPoint
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 </UL>
 
 <P><STRONG><a name="[56]"></a>genera_blocco</STRONG> (Thumb, 338 bytes, Stack size 72 bytes, game.o(.text))
@@ -501,8 +501,8 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[57]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rand
 <LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_blocco_anteprima
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
-<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 </UL>
 
@@ -515,12 +515,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[27]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RIT_IRQHandler
 </UL>
 
-<P><STRONG><a name="[4c]"></a>inizializza_gioco</STRONG> (Thumb, 154 bytes, Stack size 16 bytes, game.o(.text))
+<P><STRONG><a name="[4c]"></a>inizializza_gioco</STRONG> (Thumb, 164 bytes, Stack size 16 bytes, game.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 532 + Unknown Stack Size
 <LI>Call Chain = inizializza_gioco &rArr; genera_blocco &rArr; disegna_blocco_anteprima &rArr; LCD_SetPoint &rArr; LCD_SetCursor &rArr; wait_delay
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
 <LI><a href="#[56]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;genera_blocco
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_griglia_statica
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_timer
@@ -530,7 +529,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[5c]"></a>blocca_blocco</STRONG> (Thumb, 444 bytes, Stack size 152 bytes, game.o(.text))
+<P><STRONG><a name="[5b]"></a>blocca_blocco</STRONG> (Thumb, 444 bytes, Stack size 152 bytes, game.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 668 + Unknown Stack Size
 <LI>Call Chain = blocca_blocco &rArr; genera_blocco &rArr; disegna_blocco_anteprima &rArr; LCD_SetPoint &rArr; LCD_SetCursor &rArr; wait_delay
 </UL>
@@ -540,25 +539,24 @@ Global Symbols
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GUI_Text
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_tetramino
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 </UL>
 
-<P><STRONG><a name="[5d]"></a>ruota_blocco</STRONG> (Thumb, 348 bytes, Stack size 168 bytes, game.o(.text))
+<P><STRONG><a name="[5c]"></a>ruota_blocco</STRONG> (Thumb, 348 bytes, Stack size 168 bytes, game.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 612<LI>Call Chain = ruota_blocco &rArr; disegna_tetramino &rArr; LCD_SetPoint &rArr; LCD_SetCursor &rArr; wait_delay
 </UL>
 <BR>[Calls]<UL><LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_tetramino
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 </UL>
 
-<P><STRONG><a name="[5e]"></a>aggiorna_gioco</STRONG> (Thumb, 1374 bytes, Stack size 160 bytes, game.o(.text))
+<P><STRONG><a name="[5d]"></a>aggiorna_gioco</STRONG> (Thumb, 1378 bytes, Stack size 160 bytes, game.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 828 + Unknown Stack Size
 <LI>Call Chain = aggiorna_gioco &rArr; blocca_blocco &rArr; genera_blocco &rArr; disegna_blocco_anteprima &rArr; LCD_SetPoint &rArr; LCD_SetCursor &rArr; wait_delay
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ruota_blocco
-<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
-<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ruota_blocco
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 <LI><a href="#[56]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;genera_blocco
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_griglia_statica
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_tetramino
@@ -617,7 +615,7 @@ Global Symbols
 <P><STRONG><a name="[c]"></a>TIMER1_IRQHandler</STRONG> (Thumb, 82 bytes, Stack size 8 bytes, irq_timer.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = TIMER1_IRQHandler &rArr; playNote &rArr; init_timer
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_lpc17xx.o(RESET)
 </UL>
@@ -625,7 +623,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 836 + Unknown Stack Size
 <LI>Call Chain = TIMER2_IRQHandler &rArr; aggiorna_gioco &rArr; blocca_blocco &rArr; genera_blocco &rArr; disegna_blocco_anteprima &rArr; LCD_SetPoint &rArr; LCD_SetCursor &rArr; wait_delay
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR>[Calls]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_lpc17xx.o(RESET)
 </UL>
@@ -633,8 +631,8 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_lpc17xx.o(RESET)
 </UL>
 <P><STRONG><a name="[4b]"></a>enable_timer</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, lib_timer.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
-<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<BR><BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 <LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -642,14 +640,14 @@ Global Symbols
 <P><STRONG><a name="[a4]"></a>disable_timer</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, lib_timer.o(.text), UNUSED)
 
 <P><STRONG><a name="[6b]"></a>reset_timer</STRONG> (Thumb, 48 bytes, Stack size 0 bytes, lib_timer.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<BR><BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
 </UL>
 
 <P><STRONG><a name="[4a]"></a>init_timer</STRONG> (Thumb, 374 bytes, Stack size 8 bytes, lib_timer.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = init_timer
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
-<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;playNote
+<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 <LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -691,7 +689,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LCD_SetCursor
 <LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wait_delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 <LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -735,13 +733,13 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PutChar
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocca_blocco
 <LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;alla_pressione_tasto1
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;controlla_linee
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disegna_griglia_statica
 </UL>
 
-<P><STRONG><a name="[5b]"></a>playNote</STRONG> (Thumb, 106 bytes, Stack size 24 bytes, music.o(.text))
+<P><STRONG><a name="[5e]"></a>playNote</STRONG> (Thumb, 106 bytes, Stack size 24 bytes, music.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = playNote &rArr; init_timer
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;reset_timer
@@ -749,8 +747,6 @@ Global Symbols
 <LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_timer
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIMER1_IRQHandler
-<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
-<LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 </UL>
 
 <P><STRONG><a name="[aa]"></a>isNotePlaying</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, music.o(.text), UNUSED)
@@ -788,7 +784,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[5a]"></a>__aeabi_memclr4</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, rt_memclr_w.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
+<BR><BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;aggiorna_gioco
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inizializza_gioco
 </UL>
 
