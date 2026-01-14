@@ -2164,7 +2164,156 @@ void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char
 
 
 
+# 1 "./Source/timer\\IRQ_timer.c" 1
+# 12 "./Source/timer\\IRQ_timer.c"
+# 1 "Source\\led/led.h" 1
+# 12 "Source\\led/led.h"
+void LED_init(void);
+void LED_deinit(void);
 
+
+void LED_On (unsigned int num);
+void LED_Off (unsigned int num);
+void LED_Out(unsigned int value);
+void LED_Out_reverse(unsigned int value);
+void LED_OnAll(void);
+void LED_OffAll(void);
+void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
+# 13 "./Source/timer\\IRQ_timer.c" 2
+# 1 "./Source/timer\\../utils.h" 1
+# 1 "Source\\sample.h" 1
+
+# 1 "Source\\led/led.h" 1
+# 12 "Source\\led/led.h"
+void LED_init(void);
+void LED_deinit(void);
+
+
+void LED_On (unsigned int num);
+void LED_Off (unsigned int num);
+void LED_Out(unsigned int value);
+void LED_Out_reverse(unsigned int value);
+void LED_OnAll(void);
+void LED_OffAll(void);
+void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
+# 3 "Source\\sample.h" 2
+# 2 "./Source/timer\\../utils.h" 2
+# 1 "./Source/timer\\..\\functions.h" 1
+// Function to extract bits between indices `start` and `end` (inclusive)
+// Parameters:
+// value - The 32-bit value from which the bits will be extracted
+// start - The starting index of the bit range to extract (0 to 31)
+// end - The ending index of the bit range to extract (0 to 31)
+// Returns:
+// The extracted bits as an unsigned short (16 bits)
+unsigned short extract_bits(unsigned int value, int start, int end);
+
+// Function to represent a 32-bit value on the LEDs, 8 bits at a time
+// Parameters:
+// res - The 32-bit value to be displayed on the LEDs
+// position - The position of the byte to display (0 to 3)
+// - 0: least significant byte (LSB), 1: next byte, etc.
+// No return value; output is sent directly to LEDs
+void represent_on_leds(unsigned int res, int position);
+# 2 "./Source/timer\\../utils.h" 2
+# 14 "./Source/timer\\IRQ_timer.c" 2
+# 1 "Source\\game.h" 1
+# 15 "./Source/timer\\IRQ_timer.c" 2
+# 26 "./Source/timer\\IRQ_timer.c"
+void TIMER0_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 1) // MR0
+ {
+  // your code
+  // Esegui la logica di gioco
+        aggiorna_gioco();
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 8; // clear interrupt flag
+ }
+
+  return;
+}
+# 60 "./Source/timer\\IRQ_timer.c"
+void TIMER1_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 1) // MR0
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 8; // clear interrupt flag
+ }
+
+ return;
+}
+# 92 "./Source/timer\\IRQ_timer.c"
+void TIMER2_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 1) // MR0
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 8; // clear interrupt flag
+ }
+
+  return;
+}
+# 125 "./Source/timer\\IRQ_timer.c"
+void TIMER3_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 1)
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 1;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 2){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 2;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 4){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 4;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 8){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 8;
+ }
+
+  return;
+}
+# 5 "Source\\game.h" 2
 # 1 "Source\\GLCD/GLCD.h" 1
 # 90 "Source\\GLCD/GLCD.h"
 void LCD_Initialization(void);
@@ -2175,6 +2324,7 @@ void LCD_DrawLine( uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1 , uint16_t
 void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor, uint16_t bkColor );
 void GUI_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor);
 # 6 "Source\\game.h" 2
+
 
 //Dimensioni e Costanti di Gioco
 
@@ -2204,7 +2354,7 @@ typedef enum {
 // Colori Tetris RGB565
 // Formato: 5 bit Rosso, 6 bit Verde, 5 bit Blu
 // I nomi iniziano con T_ per distinguerli da quelli di sistema
-# 44 "Source\\game.h"
+# 45 "Source\\game.h"
 // Colori di utilità
 
 

@@ -1,8 +1,9 @@
 #ifndef GIOCO_H
 #define GIOCO_H
 
-#include <stdint.h>
+#include "IRQ_timer.c"
 #include "GLCD/GLCD.h" 
+#include <stdint.h>
 
 //Dimensioni e Costanti di Gioco 
 #define MAX_X           240     // Larghezza schermo scheda

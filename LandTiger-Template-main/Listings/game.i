@@ -9,63 +9,8 @@
 
 
 
-# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 1 3
-# 56 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 3
-typedef signed char int8_t;
-typedef signed short int int16_t;
-typedef signed int int32_t;
-typedef signed long long int int64_t;
-
-
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long int uint64_t;
-
-
-
-
-
-typedef signed char int_least8_t;
-typedef signed short int int_least16_t;
-typedef signed int int_least32_t;
-typedef signed long long int int_least64_t;
-
-
-typedef unsigned char uint_least8_t;
-typedef unsigned short int uint_least16_t;
-typedef unsigned int uint_least32_t;
-typedef unsigned long long int uint_least64_t;
-
-
-
-
-typedef signed int int_fast8_t;
-typedef signed int int_fast16_t;
-typedef signed int int_fast32_t;
-typedef signed long long int int_fast64_t;
-
-
-typedef unsigned int uint_fast8_t;
-typedef unsigned int uint_fast16_t;
-typedef unsigned int uint_fast32_t;
-typedef unsigned long long int uint_fast64_t;
-
-
-
-
-
-
-typedef signed int intptr_t;
-typedef unsigned int uintptr_t;
-
-
-
-typedef signed long long intmax_t;
-typedef unsigned long long uintmax_t;
-# 5 "Source\\game.h" 2
-# 1 "Source\\GLCD/GLCD.h" 1
-# 26 "Source\\GLCD/GLCD.h"
+# 1 "./Source/timer\\IRQ_timer.c" 1
+# 10 "./Source/timer\\IRQ_timer.c"
 # 1 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h" 1
 # 41 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h"
 typedef enum IRQn
@@ -122,6 +67,66 @@ typedef enum IRQn
 # 106 "C:/Users/giorg/AppData/Local/Arm/Packs/Keil/LPC1700_DFP/2.7.2/Device/Include\\LPC17xx.h"
 # 1 "./Source/CMSIS_core\\core_cm3.h" 1
 # 29 "./Source/CMSIS_core\\core_cm3.h" 3
+
+
+
+
+
+# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 1 3
+# 56 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdint.h" 3
+typedef signed char int8_t;
+typedef signed short int int16_t;
+typedef signed int int32_t;
+typedef signed long long int int64_t;
+
+
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long int uint64_t;
+
+
+
+
+
+typedef signed char int_least8_t;
+typedef signed short int int_least16_t;
+typedef signed int int_least32_t;
+typedef signed long long int int_least64_t;
+
+
+typedef unsigned char uint_least8_t;
+typedef unsigned short int uint_least16_t;
+typedef unsigned int uint_least32_t;
+typedef unsigned long long int uint_least64_t;
+
+
+
+
+typedef signed int int_fast8_t;
+typedef signed int int_fast16_t;
+typedef signed int int_fast32_t;
+typedef signed long long int int_fast64_t;
+
+
+typedef unsigned int uint_fast8_t;
+typedef unsigned int uint_fast16_t;
+typedef unsigned int uint_fast32_t;
+typedef unsigned long long int uint_fast64_t;
+
+
+
+
+
+
+typedef signed int intptr_t;
+typedef unsigned int uintptr_t;
+
+
+
+typedef signed long long intmax_t;
+typedef unsigned long long uintmax_t;
+# 35 "./Source/CMSIS_core\\core_cm3.h" 2 3
 # 63 "./Source/CMSIS_core\\core_cm3.h" 3
 # 1 "./Source/CMSIS_core\\cmsis_version.h" 1 3
 # 29 "./Source/CMSIS_core\\cmsis_version.h" 3
@@ -1782,270 +1787,47 @@ typedef struct
        uint32_t RESERVED8;
   volatile uint32_t Module_ID;
 } LPC_EMAC_TypeDef;
-# 27 "Source\\GLCD/GLCD.h" 2
-# 90 "Source\\GLCD/GLCD.h"
-void LCD_Initialization(void);
-void LCD_Clear(uint16_t Color);
-uint16_t LCD_GetPoint(uint16_t Xpos,uint16_t Ypos);
-void LCD_SetPoint(uint16_t Xpos,uint16_t Ypos,uint16_t point);
-void LCD_DrawLine( uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1 , uint16_t color );
-void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor, uint16_t bkColor );
-void GUI_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor);
-# 6 "Source\\game.h" 2
-
-//Dimensioni e Costanti di Gioco
-
-
-
-
-
-
-
-// offset per la griglia
-// Margine sinistro di 5 pixel, Margine alto di 10 pixel
-
-
-
-// Stati del Gioco
-typedef enum {
-    GIOCO_FINITO,
-    GIOCO_IN_CORSO,
-    GIOCO_IN_PAUSA
-} StatoGioco;
-
-// Tipi di Tetramini
-typedef enum {
-    BLOCCO_I, BLOCCO_J, BLOCCO_L, BLOCCO_O, BLOCCO_S, BLOCCO_T, BLOCCO_Z
-} TipoBlocco;
-
-// Colori Tetris RGB565
-// Formato: 5 bit Rosso, 6 bit Verde, 5 bit Blu
-// I nomi iniziano con T_ per distinguerli da quelli di sistema
-# 44 "Source\\game.h"
-// Colori di utilità
-
-
-
-
-
-// --- Strutture Dati ---
-
-// Un punto nella griglia
-typedef struct {
-    int riga;
-    int colonna;
-} Punto;
-
-// Definizione di un Tetramino
-typedef struct {
-    Punto celle[4]; // Ogni blocco è formato da 4 celle
-    Punto posizione; // Posizione (riga, colonna) del pivot del blocco nella griglia
-    uint16_t colore; // Colore del blocco (usiamo i colori definiti in GLCD.h)
-    TipoBlocco tipo; // Tipo di blocco
-    int rotazione; // Stato di rotazione (0, 1, 2, 3)
-} Tetramino;
-
-// Variabili Globali Esterne (accessibili da main e interrupt)
-extern uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne]; // Matrice che rappresenta la griglia (contiene i colori)
-extern Tetramino tetraminoCorrente; // Il blocco che sta cadendo
-extern Tetramino tetraminoSuccessivo; // Il prossimo blocco (per la preview)
-extern volatile StatoGioco stato_gioco; // Stato corrente del gioco
-extern int punteggio; // Punteggio corrente
-
-// Prototipi di Funzione
-void inizializza_gioco(void); // Inizializza variabili e schermo
-void aggiorna_gioco(void); // Logica principale (chiamata dal timer)
-void genera_blocco(void); // Genera un nuovo blocco
-void disegna_griglia_statica(void); // Disegna i contorni statici
-extern volatile int mod_caduta_rapida;
-extern void alla_pressione_tasto1(void);
-# 2 "Source/game.c" 2
-
-# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 1 3
-# 71 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-    typedef unsigned int size_t;
-# 91 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-    typedef unsigned short wchar_t;
-
-
-
-
-typedef struct div_t { int quot, rem; } div_t;
-
-typedef struct ldiv_t { long int quot, rem; } ldiv_t;
-# 139 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int __aeabi_MB_CUR_MAX(void);
-# 158 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) double atof(const char * ) __attribute__((__nonnull__(1)));
-
-
-
-
-
-extern __attribute__((__nothrow__)) int atoi(const char * ) __attribute__((__nonnull__(1)));
-
-
-
-
-
-extern __attribute__((__nothrow__)) long int atol(const char * ) __attribute__((__nonnull__(1)));
-# 185 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) double strtod(const char * __restrict , char ** __restrict ) __attribute__((__nonnull__(1)));
-# 212 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) long int strtol(const char * __restrict ,
-                        char ** __restrict , int ) __attribute__((__nonnull__(1)));
-# 243 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) unsigned long int strtoul(const char * __restrict ,
-                                       char ** __restrict , int ) __attribute__((__nonnull__(1)));
-# 275 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) long long strtoll(const char * __restrict ,
-                                  char ** __restrict , int )
-                          __attribute__((__nonnull__(1)));
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) unsigned long long strtoull(const char * __restrict ,
-                                            char ** __restrict , int )
-                                   __attribute__((__nonnull__(1)));
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) int rand(void);
-# 303 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) void srand(unsigned int );
-# 313 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-struct _rand_state { int __x[57]; };
-extern __attribute__((__nothrow__)) int _rand_r(struct _rand_state *);
-extern __attribute__((__nothrow__)) void _srand_r(struct _rand_state *, unsigned int);
-struct _ANSI_rand_state { int __x[1]; };
-extern __attribute__((__nothrow__)) int _ANSI_rand_r(struct _ANSI_rand_state *);
-extern __attribute__((__nothrow__)) void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *calloc(size_t , size_t );
-
-
-
-
-
-extern __attribute__((__nothrow__)) void free(void * );
-
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *malloc(size_t );
-
-
-
-
-
-extern __attribute__((__nothrow__)) void *realloc(void * , size_t );
-# 374 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-typedef int (*__heapprt)(void *, char const *, ...);
-extern __attribute__((__nothrow__)) void __heapstats(int (* )(void * ,
-                                           char const * , ...),
-                        void * ) __attribute__((__nonnull__(1)));
-# 390 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int __heapvalid(int (* )(void * ,
-                                           char const * , ...),
-                       void * , int ) __attribute__((__nonnull__(1)));
-# 411 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void abort(void);
-# 422 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int atexit(void (* )(void)) __attribute__((__nonnull__(1)));
-# 444 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void exit(int );
-# 460 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void _Exit(int );
-# 471 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) char *getenv(const char * ) __attribute__((__nonnull__(1)));
-# 484 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int system(const char * );
-# 497 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern void *bsearch(const void * , const void * ,
-              size_t , size_t ,
-              int (* )(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
-# 532 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern void qsort(void * , size_t , size_t ,
-           int (* )(const void *, const void *)) __attribute__((__nonnull__(1,4)));
-# 560 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) int abs(int );
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) __attribute__((__const__)) div_t div(int , int );
-# 579 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) long int labs(long int );
-# 589 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) __attribute__((__const__)) ldiv_t ldiv(long int , long int );
-# 644 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-typedef struct __sdiv32by16 { long quot, rem; } __sdiv32by16;
-typedef struct __udiv32by16 { unsigned long quot, rem; } __udiv32by16;
-
-typedef struct __sdiv64by32 { long rem, quot; } __sdiv64by32;
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv32by16 __rt_sdiv32by16(
-     int ,
-     short int );
-
-
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __udiv32by16 __rt_udiv32by16(
-     unsigned int ,
-     unsigned short );
-
-
-
-__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv64by32 __rt_sdiv64by32(
-     int , unsigned int ,
-     int );
-
-
-
-
-
-
-
-extern __attribute__((__nothrow__)) unsigned int __fp_status(unsigned int , unsigned int );
-# 705 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int mblen(const char * , size_t );
-# 720 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int mbtowc(wchar_t * __restrict ,
-                   const char * __restrict , size_t );
-# 739 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) int wctomb(char * , wchar_t );
-# 761 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) size_t mbstowcs(wchar_t * __restrict ,
-                      const char * __restrict , size_t ) __attribute__((__nonnull__(2)));
-# 779 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) size_t wcstombs(char * __restrict ,
-                      const wchar_t * __restrict , size_t ) __attribute__((__nonnull__(2)));
-# 798 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
-extern __attribute__((__nothrow__)) void __use_realtime_heap(void);
-extern __attribute__((__nothrow__)) void __use_realtime_division(void);
-extern __attribute__((__nothrow__)) void __use_two_region_memory(void);
-extern __attribute__((__nothrow__)) void __use_no_heap(void);
-extern __attribute__((__nothrow__)) void __use_no_heap_region(void);
-
-extern __attribute__((__nothrow__)) char const *__C_library_version_string(void);
-extern __attribute__((__nothrow__)) int __C_library_version_number(void);
-# 4 "Source/game.c" 2
+# 11 "./Source/timer\\IRQ_timer.c" 2
+# 1 "./Source/timer\\timer.h" 1
+# 14 "./Source/timer\\timer.h"
+//uint32_t init_timer ( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval )
+//extern uint32_t init_timer( uint8_t timer_num, uint32_t timerInterval );
+extern uint32_t init_timer( uint8_t timer_num, uint32_t Prescaler, uint8_t MatchReg, uint8_t SRImatchReg, uint32_t TimerInterval );
+extern void enable_timer( uint8_t timer_num );
+extern void disable_timer( uint8_t timer_num );
+extern void reset_timer( uint8_t timer_num );
+void toggle_timer( uint8_t timer_num );
+unsigned int get_timer_value(uint8_t timer_num);
+uint32_t is_timer_enabled ( uint8_t timer_num);
+void power_on_timer2();
+void power_on_timer3();
+float get_timer_value_in_sec(uint8_t timer_num);
+
+
+extern void TIMER0_IRQHandler (void);
+extern void TIMER1_IRQHandler (void);
+extern void TIMER2_IRQHandler (void);
+extern void TIMER3_IRQHandler (void);
+# 12 "./Source/timer\\IRQ_timer.c" 2
+# 1 "./Source/timer\\../led/led.h" 1
+# 12 "./Source/timer\\../led/led.h"
+void LED_init(void);
+void LED_deinit(void);
+
+
+void LED_On (unsigned int num);
+void LED_Off (unsigned int num);
+void LED_Out(unsigned int value);
+void LED_Out_reverse(unsigned int value);
+void LED_OnAll(void);
+void LED_OffAll(void);
+void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
+# 13 "./Source/timer\\IRQ_timer.c" 2
+# 1 "./Source/timer\\../utils.h" 1
+# 1 "./Source/timer\\..\\sample.h" 1
 # 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 1 3
+# 53 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
+    typedef unsigned int size_t;
 # 68 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
     typedef __builtin_va_list __va_list;
 # 87 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdio.h" 3
@@ -2346,7 +2128,411 @@ extern __attribute__((__nothrow__)) int _fisatty(FILE * ) __attribute__((__nonnu
 
 extern __attribute__((__nothrow__)) void __use_no_semihosting_swi(void);
 extern __attribute__((__nothrow__)) void __use_no_semihosting(void);
-# 5 "Source/game.c" 2
+# 2 "./Source/timer\\..\\sample.h" 2
+# 1 "./Source/timer\\../led/led.h" 1
+# 12 "./Source/timer\\../led/led.h"
+void LED_init(void);
+void LED_deinit(void);
+
+
+void LED_On (unsigned int num);
+void LED_Off (unsigned int num);
+void LED_Out(unsigned int value);
+void LED_Out_reverse(unsigned int value);
+void LED_OnAll(void);
+void LED_OffAll(void);
+void LED_Out_Range(unsigned int value, unsigned char from_led_num, unsigned char to_led_num);
+# 3 "./Source/timer\\..\\sample.h" 2
+# 1 "./Source/timer\\..\\RIT/RIT.h" 1
+# 17 "./Source/timer\\..\\RIT/RIT.h"
+extern uint32_t init_RIT( uint32_t RITInterval );
+extern void enable_RIT( void );
+extern void disable_RIT( void );
+extern void reset_RIT( void );
+unsigned int get_RIT_value();
+
+extern void RIT_IRQHandler (void);
+# 4 "./Source/timer\\..\\sample.h" 2
+# 2 "./Source/timer\\../utils.h" 2
+# 1 "./Source/timer\\..\\functions.h" 1
+// Function to extract bits between indices `start` and `end` (inclusive)
+// Parameters:
+// value - The 32-bit value from which the bits will be extracted
+// start - The starting index of the bit range to extract (0 to 31)
+// end - The ending index of the bit range to extract (0 to 31)
+// Returns:
+// The extracted bits as an unsigned short (16 bits)
+unsigned short extract_bits(unsigned int value, int start, int end);
+
+// Function to represent a 32-bit value on the LEDs, 8 bits at a time
+// Parameters:
+// res - The 32-bit value to be displayed on the LEDs
+// position - The position of the byte to display (0 to 3)
+// - 0: least significant byte (LSB), 1: next byte, etc.
+// No return value; output is sent directly to LEDs
+void represent_on_leds(unsigned int res, int position);
+# 2 "./Source/timer\\../utils.h" 2
+# 14 "./Source/timer\\IRQ_timer.c" 2
+# 1 "Source\\game.h" 1
+# 15 "./Source/timer\\IRQ_timer.c" 2
+# 26 "./Source/timer\\IRQ_timer.c"
+void TIMER0_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 1) // MR0
+ {
+  // your code
+  // Esegui la logica di gioco
+        aggiorna_gioco();
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 8; // clear interrupt flag
+ }
+
+  return;
+}
+# 60 "./Source/timer\\IRQ_timer.c"
+void TIMER1_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 1) // MR0
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x08000) )->IR = 8; // clear interrupt flag
+ }
+
+ return;
+}
+# 92 "./Source/timer\\IRQ_timer.c"
+void TIMER2_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 1) // MR0
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 1; //clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 2){ // MR1
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 2; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 4){ // MR2
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 4; // clear interrupt flag
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR & 8){ // MR3
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x10000) )->IR = 8; // clear interrupt flag
+ }
+
+  return;
+}
+# 125 "./Source/timer\\IRQ_timer.c"
+void TIMER3_IRQHandler (void)
+{
+ if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 1)
+ {
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 1;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 2){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 2;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 4){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 4;
+ }
+ else if(((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR & 8){
+  // your code
+  ((LPC_TIM_TypeDef *) ((0x40080000UL) + 0x14000) )->IR = 8;
+ }
+
+  return;
+}
+# 5 "Source\\game.h" 2
+# 1 "Source\\GLCD/GLCD.h" 1
+# 90 "Source\\GLCD/GLCD.h"
+void LCD_Initialization(void);
+void LCD_Clear(uint16_t Color);
+uint16_t LCD_GetPoint(uint16_t Xpos,uint16_t Ypos);
+void LCD_SetPoint(uint16_t Xpos,uint16_t Ypos,uint16_t point);
+void LCD_DrawLine( uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1 , uint16_t color );
+void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor, uint16_t bkColor );
+void GUI_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor);
+# 6 "Source\\game.h" 2
+
+
+//Dimensioni e Costanti di Gioco
+
+
+
+
+
+
+
+// offset per la griglia
+// Margine sinistro di 5 pixel, Margine alto di 10 pixel
+
+
+
+// Stati del Gioco
+typedef enum {
+    GIOCO_FINITO,
+    GIOCO_IN_CORSO,
+    GIOCO_IN_PAUSA
+} StatoGioco;
+
+// Tipi di Tetramini
+typedef enum {
+    BLOCCO_I, BLOCCO_J, BLOCCO_L, BLOCCO_O, BLOCCO_S, BLOCCO_T, BLOCCO_Z
+} TipoBlocco;
+
+// Colori Tetris RGB565
+// Formato: 5 bit Rosso, 6 bit Verde, 5 bit Blu
+// I nomi iniziano con T_ per distinguerli da quelli di sistema
+# 45 "Source\\game.h"
+// Colori di utilità
+
+
+
+
+
+// --- Strutture Dati ---
+
+// Un punto nella griglia
+typedef struct {
+    int riga;
+    int colonna;
+} Punto;
+
+// Definizione di un Tetramino
+typedef struct {
+    Punto celle[4]; // Ogni blocco è formato da 4 celle
+    Punto posizione; // Posizione (riga, colonna) del pivot del blocco nella griglia
+    uint16_t colore; // Colore del blocco (usiamo i colori definiti in GLCD.h)
+    TipoBlocco tipo; // Tipo di blocco
+    int rotazione; // Stato di rotazione (0, 1, 2, 3)
+} Tetramino;
+
+// Variabili Globali Esterne (accessibili da main e interrupt)
+extern uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne]; // Matrice che rappresenta la griglia (contiene i colori)
+extern Tetramino tetraminoCorrente; // Il blocco che sta cadendo
+extern Tetramino tetraminoSuccessivo; // Il prossimo blocco (per la preview)
+extern volatile StatoGioco stato_gioco; // Stato corrente del gioco
+extern int punteggio; // Punteggio corrente
+
+// Prototipi di Funzione
+void inizializza_gioco(void); // Inizializza variabili e schermo
+void aggiorna_gioco(void); // Logica principale (chiamata dal timer)
+void genera_blocco(void); // Genera un nuovo blocco
+void disegna_griglia_statica(void); // Disegna i contorni statici
+extern volatile int mod_caduta_rapida;
+extern void alla_pressione_tasto1(void);
+# 2 "Source/game.c" 2
+
+# 1 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 1 3
+# 91 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+    typedef unsigned short wchar_t;
+
+
+
+
+typedef struct div_t { int quot, rem; } div_t;
+
+typedef struct ldiv_t { long int quot, rem; } ldiv_t;
+# 139 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int __aeabi_MB_CUR_MAX(void);
+# 158 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) double atof(const char * ) __attribute__((__nonnull__(1)));
+
+
+
+
+
+extern __attribute__((__nothrow__)) int atoi(const char * ) __attribute__((__nonnull__(1)));
+
+
+
+
+
+extern __attribute__((__nothrow__)) long int atol(const char * ) __attribute__((__nonnull__(1)));
+# 185 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) double strtod(const char * __restrict , char ** __restrict ) __attribute__((__nonnull__(1)));
+# 212 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) long int strtol(const char * __restrict ,
+                        char ** __restrict , int ) __attribute__((__nonnull__(1)));
+# 243 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) unsigned long int strtoul(const char * __restrict ,
+                                       char ** __restrict , int ) __attribute__((__nonnull__(1)));
+# 275 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) long long strtoll(const char * __restrict ,
+                                  char ** __restrict , int )
+                          __attribute__((__nonnull__(1)));
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) unsigned long long strtoull(const char * __restrict ,
+                                            char ** __restrict , int )
+                                   __attribute__((__nonnull__(1)));
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) int rand(void);
+# 303 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) void srand(unsigned int );
+# 313 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+struct _rand_state { int __x[57]; };
+extern __attribute__((__nothrow__)) int _rand_r(struct _rand_state *);
+extern __attribute__((__nothrow__)) void _srand_r(struct _rand_state *, unsigned int);
+struct _ANSI_rand_state { int __x[1]; };
+extern __attribute__((__nothrow__)) int _ANSI_rand_r(struct _ANSI_rand_state *);
+extern __attribute__((__nothrow__)) void _ANSI_srand_r(struct _ANSI_rand_state *, unsigned int);
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *calloc(size_t , size_t );
+
+
+
+
+
+extern __attribute__((__nothrow__)) void free(void * );
+
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *malloc(size_t );
+
+
+
+
+
+extern __attribute__((__nothrow__)) void *realloc(void * , size_t );
+# 374 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+typedef int (*__heapprt)(void *, char const *, ...);
+extern __attribute__((__nothrow__)) void __heapstats(int (* )(void * ,
+                                           char const * , ...),
+                        void * ) __attribute__((__nonnull__(1)));
+# 390 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int __heapvalid(int (* )(void * ,
+                                           char const * , ...),
+                       void * , int ) __attribute__((__nonnull__(1)));
+# 411 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void abort(void);
+# 422 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int atexit(void (* )(void)) __attribute__((__nonnull__(1)));
+# 444 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void exit(int );
+# 460 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__noreturn__)) void _Exit(int );
+# 471 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) char *getenv(const char * ) __attribute__((__nonnull__(1)));
+# 484 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int system(const char * );
+# 497 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern void *bsearch(const void * , const void * ,
+              size_t , size_t ,
+              int (* )(const void *, const void *)) __attribute__((__nonnull__(1,2,5)));
+# 532 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern void qsort(void * , size_t , size_t ,
+           int (* )(const void *, const void *)) __attribute__((__nonnull__(1,4)));
+# 560 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) int abs(int );
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) __attribute__((__const__)) div_t div(int , int );
+# 579 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) long int labs(long int );
+# 589 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) __attribute__((__const__)) ldiv_t ldiv(long int , long int );
+# 644 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+typedef struct __sdiv32by16 { long quot, rem; } __sdiv32by16;
+typedef struct __udiv32by16 { unsigned long quot, rem; } __udiv32by16;
+
+typedef struct __sdiv64by32 { long rem, quot; } __sdiv64by32;
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv32by16 __rt_sdiv32by16(
+     int ,
+     short int );
+
+
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __udiv32by16 __rt_udiv32by16(
+     unsigned int ,
+     unsigned short );
+
+
+
+__attribute__((__value_in_regs__)) extern __attribute__((__nothrow__)) __attribute__((__const__)) __sdiv64by32 __rt_sdiv64by32(
+     int , unsigned int ,
+     int );
+
+
+
+
+
+
+
+extern __attribute__((__nothrow__)) unsigned int __fp_status(unsigned int , unsigned int );
+# 705 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int mblen(const char * , size_t );
+# 720 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int mbtowc(wchar_t * __restrict ,
+                   const char * __restrict , size_t );
+# 739 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) int wctomb(char * , wchar_t );
+# 761 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) size_t mbstowcs(wchar_t * __restrict ,
+                      const char * __restrict , size_t ) __attribute__((__nonnull__(2)));
+# 779 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) size_t wcstombs(char * __restrict ,
+                      const wchar_t * __restrict , size_t ) __attribute__((__nonnull__(2)));
+# 798 "C:\\Users\\giorg\\AppData\\Local\\Keil_v5\\ARM\\ARMCLANG\\bin\\..\\include\\stdlib.h" 3
+extern __attribute__((__nothrow__)) void __use_realtime_heap(void);
+extern __attribute__((__nothrow__)) void __use_realtime_division(void);
+extern __attribute__((__nothrow__)) void __use_two_region_memory(void);
+extern __attribute__((__nothrow__)) void __use_no_heap(void);
+extern __attribute__((__nothrow__)) void __use_no_heap_region(void);
+
+extern __attribute__((__nothrow__)) char const *__C_library_version_string(void);
+extern __attribute__((__nothrow__)) int __C_library_version_number(void);
+# 4 "Source/game.c" 2
+
 
 // Variabili Globali
 uint16_t griglia[20 // Righe della griglia di gioco][10 // Colonne];
