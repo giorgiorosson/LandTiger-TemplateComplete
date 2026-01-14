@@ -1959,25 +1959,23 @@ static int current_note = 0;
 
 void TIMER0_IRQHandler (void)
 {
-
-
-
+ static int tick = 0;
+ // Abbassa questo valore se il volume è troppo alto (max 1023)
  int volume = 400;
 
  if(((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR & 1)
  {
-  // Alterna tra 0 e Volume
+  // Scrittura sul DAC
   if (tick == 0) {
-   // Scrivi nel registro DAC: Valore << 6 (i bit 0-5 sono riservati)
-   ((LPC_DAC_TypeDef *) ((0x40080000UL) + 0x0C000) )->DACR = (volume << 6);
+   ((LPC_DAC_TypeDef *) ((0x40080000UL) + 0x0C000) )->DACR = (volume << 6); // Onda ALTA
    tick = 1;
   }
   else {
-   ((LPC_DAC_TypeDef *) ((0x40080000UL) + 0x0C000) )->DACR = (0 << 6);
+   ((LPC_DAC_TypeDef *) ((0x40080000UL) + 0x0C000) )->DACR = (0 << 6); // Onda BASSA
    tick = 0;
   }
 
-  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; // Clear flag
+  ((LPC_TIM_TypeDef *) ((0x40000000UL) + 0x04000) )->IR = 1; // IMPORTANTE: Resetta il flag o si blocca tutto!
  }
  return;
 }

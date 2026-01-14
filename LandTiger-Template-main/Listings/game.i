@@ -2674,42 +2674,31 @@ void alla_pressione_tasto1(void) {
 void inizializza_gioco(void) {
     int i, j;
 
-    // --- 1. CONFIGURAZIONE PRIORITÀ INTERRUPT ---
-    __NVIC_SetPriority(TIMER0_IRQn, 0); // Audio
-    __NVIC_SetPriority(TIMER1_IRQn, 1); // Durata Note
-    __NVIC_SetPriority(RIT_IRQn, 2); // Joystick
-    __NVIC_SetPriority(TIMER2_IRQn, 3); // Gioco
+    // Priorità
+    __NVIC_SetPriority(TIMER0_IRQn, 0);
+    __NVIC_SetPriority(TIMER1_IRQn, 1);
+    __NVIC_SetPriority(RIT_IRQn, 2);
+    __NVIC_SetPriority(TIMER2_IRQn, 3);
 
-    // --- 2. PULIZIA SCHERMO E VARIABILI ---
-    for(i = 0; i < 20 // Righe della griglia di gioco; i++) {
-        for(j = 0; j < 10 // Colonne; j++) {
-            griglia[i][j] = 0x0000 // Sfondo;
-        }
-    }
+    // Pulisci schermo
+    for(i=0;i<20 // Righe della griglia di gioco;i++) for(j=0;j<10 // Colonne;j++) griglia[i][j]=0x0000 // Sfondo;
     punteggio = 0;
     linee_completate_totali = 0;
     stato_gioco = GIOCO_IN_PAUSA;
-    tetraminoCorrente.tipo = 0;
-    tetraminoSuccessivo.tipo = 0;
 
     LCD_Clear(0x0000 // Sfondo);
     disegna_griglia_statica();
     genera_blocco();
 
-    // --- 3. ATTIVAZIONE GIOCO SU TIMER 2 ---
+    // --- ACCENSIONE TIMER 2 ---
+    // 1. Dai corrente al Timer 2
+    ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22);
 
-    // >>> MODIFICA FONDAMENTALE QUI SOTTO <<<
-
-    // Accendi elettricamente il Timer 2 (altrimenti è morto!)
-    // Se la funzione power_on_timer2() non viene riconosciuta, usa la riga commentata sotto:
-    power_on_timer2();
-    // ((LPC_SC_TypeDef *) ((0x40080000UL) + 0x7C000) )->PCONP |= (1 << 22); // Alternativa diretta se power_on_timer2 non va
-
-    // Ora puoi inizializzarlo (circa 60Hz -> 0x65B9A)
+    // 2. Inizializza (60Hz circa = 416666 tick)
     init_timer(2, 0, 0, 3, 0x65B9A);
     enable_timer(2);
 
-    // --- 4. START MUSICA ---
+    // --- START MUSICA ---
     playNote(tetris_theme[0]);
 }
 void blocca_blocco(void) {

@@ -7,13 +7,18 @@ void playNote(NOTE note)
     if(note.freq != pause)
     {
         reset_timer(0);
-        init_timer(0, 0, 0, 3, note.freq);
         
-        // --- MODIFICA PER SUONO PULITO (DAC) ---
-        // Impostiamo P0.26 come AOUT (Analog Output) invece che GPIO
-        // PINSEL1 [21:20] deve essere 10 (binario) -> 2 (decimale)
-        LPC_PINCON->PINSEL1 &= ~(3 << 20); // Pulisce i bit
-        LPC_PINCON->PINSEL1 |= (2 << 20);  // Imposta modalità DAC (AOUT)
+        // --- CORREZIONE MATEMATICA FONDAMENTALE ---
+        // Il clock è 25MHz. Dobbiamo calcolare i tick per semi-periodo.
+        // Esempio: 440Hz -> vogliamo un cambio stato ogni 1/880 di secondo.
+        // 25.000.000 / (440 * 2) = 28.409 tick.
+        uint32_t ticks = 25000000 / (note.freq * 2);
+        
+        init_timer(0, 0, 0, 3, ticks);
+        
+        // Configurazione DAC (P0.26 come AOUT)
+        LPC_PINCON->PINSEL1 &= ~(3 << 20);
+        LPC_PINCON->PINSEL1 |= (2 << 20);
         
         enable_timer(0);
     }

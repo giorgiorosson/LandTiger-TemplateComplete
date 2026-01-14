@@ -12,25 +12,23 @@ static int current_note = 0;
 ******************************************************************************/
 void TIMER0_IRQHandler (void)
 {
-	/* Variabile per abbassare il volume. 
-	   Il massimo è 1023 (3.3V). 
-	   Un valore intorno a 400-500 è un buon compromesso. */
+	static int tick = 0;
+	// Abbassa questo valore se il volume è troppo alto (max 1023)
 	int volume = 400; 
 
 	if(LPC_TIM0->IR & 1) 
 	{
-		// Alterna tra 0 e Volume
+		// Scrittura sul DAC
 		if (tick == 0) {
-			// Scrivi nel registro DAC: Valore << 6 (i bit 0-5 sono riservati)
-			LPC_DAC->DACR = (volume << 6);
+			LPC_DAC->DACR = (volume << 6); // Onda ALTA
 			tick = 1;
 		}
 		else {
-			LPC_DAC->DACR = (0 << 6);
+			LPC_DAC->DACR = (0 << 6);      // Onda BASSA
 			tick = 0;
 		}
 		
-		LPC_TIM0->IR = 1; // Clear flag
+		LPC_TIM0->IR = 1; // IMPORTANTE: Resetta il flag o si blocca tutto!
 	}
 	return;
 }
