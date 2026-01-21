@@ -191,6 +191,20 @@ void genera_blocco(void) {
     disegna_blocco_anteprima(tetraminoSuccessivo, tetraminoSuccessivo.colore);
 }
 
+// Funzione per inizializzare l'ADC (Potenziometro)
+void ADC_init(void) {
+    // 1. Configura il pin P1.31 per la funzione AD0.5
+    LPC_PINCON->PINSEL3 |= (3 << 30); 
+
+    // 2. Accendi l'alimentazione per l'ADC (Bit 12 di PCONP)
+    LPC_SC->PCONP |= (1 << 12);       
+
+    // 3. Configura il registro di controllo ADC (ADCR)
+    LPC_ADC->ADCR = (1 << 5) |      // Seleziona il canale 5 (AD0.5)
+                    (4 << 8) |      // Clock divider: 25MHz / (4+1) = 5MHz (deve essere <= 13MHz)
+                    (1 << 21);      // PDN = 1: ADC operativo
+}
+
 // --- INITIALIZZAZIONE ---
 void inizializza_gioco(void) {
     int i, j;
@@ -212,6 +226,10 @@ void inizializza_gioco(void) {
     LCD_Clear(C_Nero);
     disegna_griglia_statica(); 
     genera_blocco();
+
+    // Inizializza l'ADC (Potenziometro)
+    // Assicurati di aver definito la funzione ADC_init() nel file o incluso l'header
+    ADC_init();
 
     // 1. Accendi Timer 2 per la musica (PCONP bit 22)
     LPC_SC->PCONP |= (1 << 22); 
@@ -274,6 +292,7 @@ static int ticks = 0;
 
 void aggiorna_gioco(void) {
     Tetramino temp;
+    
     if (richiesta_riavvio) {
         richiesta_riavvio = 0;
         inizializza_gioco();
@@ -312,9 +331,35 @@ void aggiorna_gioco(void) {
         J_right = 0; 
     }
 
+    // --- LOGICA VELOCITA' (SPECIFICA 1) ---
+    
+    // 1. Avvia conversione ADC
+    LPC_ADC->ADCR |= (1 << 24); 
+    
+    // 2. Attendi la fine della conversione
+    while (!(LPC_ADC->ADGDR & (1U << 31)));
+    
+    // 3. Leggi il risultato (Bit 4-15)
+    int adc_val = (LPC_ADC->ADGDR >> 4) & 0xFFF;
+    
+    // 4. Mappa il valore ADC (0-4095) in velocità (1-5 blocchi/secondo)
+    // Formula: Speed = 1 + (ValoreADC / 4095) * 4
+    float speed = 1.0f + ((float)adc_val * 4.0f) / 4095.0f;
+    
+    // 5. Gestione Soft Drop (Joystick Giù)
+    // "holding the joystick down doubles the current falling speed"
+    if (J_down != 0) {
+        speed *= 2.0f; 
+    }
+    
+    // 6. Calcolo Threshold (Tick necessari per muovere il blocco)
+    // Il Timer 0 gira a 60Hz. Threshold = FrequenzaTimer / BlocchiPerSecondo
+    int threshold = (int)(60.0f / speed);
+    
+    // Sicurezza: il threshold non deve mai essere < 1
+    if (threshold < 1) threshold = 1;
+
     ticks++;
-    int threshold = 40; 
-    if (J_down != 0) threshold = 2; 
     
     if (ticks >= threshold) { 
         ticks = 0; 

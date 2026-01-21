@@ -2243,8 +2243,11 @@ void disegna_griglia_statica(void); // Disegna i contorni statici
 extern volatile int mod_caduta_rapida;
 extern void alla_pressione_tasto1(void);
 # 25 "Source/sample.c" 2
+
+
+extern uint8_t ScaleFlag; // <- ScaleFlag needs to visible in order for the emulator to find the symbol (can be placed also inside system_LPC17xx.h but since it is RO, it needs more work)
 # 40 "Source/sample.c"
-int main(void) {
+  int main(void) {
     SystemInit();
     LCD_Initialization();
     LCD_Clear(0x0000 // Sfondo); // Modificato T_Black in 0x0000 // Sfondo

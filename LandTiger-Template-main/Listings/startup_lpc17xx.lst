@@ -425,11 +425,11 @@ ARM Macro Assembler    Page 7
 Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M3 --depe
 nd=.\objects\startup_lpc17xx.d -o.\objects\startup_lpc17xx.o -I.\Source\button_
 EXINT -I.\Source\CMSIS_core -I.\Source\joystick -I.\Source\led -I.\Source\RIT -
-I.\Source\timer -I.\Source -I.\RTE\_LandTiger_LPC1768__release_ -IC:\Users\gior
-g\AppData\Local\Arm\Packs\ARM\CMSIS\6.2.0\CMSIS\Core\Include -IC:\Users\giorg\A
-ppData\Local\Arm\Packs\Keil\LPC1700_DFP\2.7.2\Device\Include --predefine="__UVI
-SION_VERSION SETA 543" --predefine="LPC175x_6x SETA 1" --predefine="_RTE_ SETA 
-1" --list=.\listings\startup_lpc17xx.lst Source\startup_LPC17xx.s
+I.\Source\timer -I.\Source -I.\RTE\_SW_Debug -IC:\Users\giorg\AppData\Local\Arm
+\Packs\ARM\CMSIS\6.2.0\CMSIS\Core\Include -IC:\Users\giorg\AppData\Local\Arm\Pa
+cks\Keil\LPC1700_DFP\2.7.2\Device\Include --predefine="__UVISION_VERSION SETA 5
+43" --predefine="LPC175x_6x SETA 1" --predefine="_RTE_ SETA 1" --list=.\listing
+s\startup_lpc17xx.lst Source\startup_LPC17xx.s
 
 
 

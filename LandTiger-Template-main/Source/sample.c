@@ -37,7 +37,7 @@ unsigned char taps = 0x41; //01000001
   Main Program
  *----------------------------------------------------------------------------*/
 
-int main(void) {
+  int main(void) {
     SystemInit();  
     LCD_Initialization();
     LCD_Clear(C_Nero); // Modificato T_Black in C_Nero
